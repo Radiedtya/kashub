@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>eProduct - Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: { DEFAULT: "#1046ee", dark: "#0b34c4", light: "#3b63f5" },
+            },
+            fontFamily: {
+              sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #d7deee;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body class="bg-[#eef1f8]">
+    <div id="app" class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside
+        class="w-67.5 shrink-0 bg-gradient-to-b from-[#0f3fee] to-[#0a2fc4] text-white flex flex-col py-8 px-6 rounded-r-[28px]"
+      >
+        <div class="text-2xl font-extrabold tracking-tight mb-12">eProduct</div>
+
+        <nav class="flex flex-col gap-1">
+          <a
+            v-for="item in navItems"
+            :key="item.name"
+            href="#"
+            @click.prevent="activeNav = item.name"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors"
+            :class="activeNav === item.name
+            ? 'bg-white text-brand font-semibold shadow-sm'
+            : 'text-white/80 hover:bg-white/10'"
+          >
+            <component :is="item.icon" class="w-5 h-5 shrink-0" />
+            <span>{{ item.name }}</span>
+          </a>
+        </nav>
+
+        <div class="mt-auto flex items-center gap-6 pt-10 text-white/90">
+          <a
+            href="#"
+            class="flex flex-col items-center gap-1 text-xs hover:text-white"
+          >
+            <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor">
+              <path
+                d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.79 8.44-4.94 8.44-9.94Z"
+              />
+            </svg>
+            Facebook
+          </a>
+          <a
+            href="#"
+            class="flex flex-col items-center gap-1 text-xs hover:text-white"
+          >
+            <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor">
+              <path
+                d="M22 5.9c-.77.35-1.6.58-2.46.68a4.3 4.3 0 0 0 1.88-2.37 8.6 8.6 0 0 1-2.72 1.04 4.28 4.28 0 0 0-7.29 3.9A12.15 12.15 0 0 1 2.9 4.9a4.28 4.28 0 0 0 1.33 5.71 4.24 4.24 0 0 1-1.94-.54v.06a4.28 4.28 0 0 0 3.43 4.2 4.3 4.3 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.97A8.6 8.6 0 0 1 2 19.07 12.13 12.13 0 0 0 8.56 21c7.86 0 12.16-6.51 12.16-12.16 0-.19 0-.37-.01-.55A8.7 8.7 0 0 0 22 5.9Z"
+              />
+            </svg>
+            Twitter
+          </a>
+          <a
+            href="#"
+            class="flex flex-col items-center gap-1 text-xs hover:text-white"
+          >
+            <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor">
+              <path
+                d="M21.35 11.1h-9.17v2.98h5.27c-.23 1.4-1.62 4.1-5.27 4.1-3.17 0-5.76-2.62-5.76-5.86s2.59-5.86 5.76-5.86c1.8 0 3.01.77 3.7 1.43l2.53-2.44C16.83 3.7 14.7 2.7 12.18 2.7 6.94 2.7 2.7 6.94 2.7 12.18s4.24 9.48 9.48 9.48c5.47 0 9.1-3.85 9.1-9.26 0-.62-.07-1.09-.15-1.6Z"
+              />
+            </svg>
+            Google
+          </a>
+        </div>
+      </aside>
+
+      <!-- Main content -->
+      <main class="flex-1 px-10 py-8">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h1 class="text-3xl font-extrabold text-slate-900">Dashboard</h1>
+            <p class="text-slate-400 mt-1">
+              Welcome back, here's what's happening today.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-5">
+            <button
+              class="relative w-11 h-11 flex items-center justify-center rounded-full bg-white shadow-sm hover:shadow transition"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                class="w-5 h-5 text-slate-500"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <path
+                  d="M12 3a6 6 0 0 0-6 6v3.2c0 .5-.2 1-.5 1.4L4 15.5c-.6.8 0 2 1 2h14c1 0 1.6-1.2 1-2l-1.5-2c-.3-.4-.5-.9-.5-1.4V9a6 6 0 0 0-6-6Z"
+                />
+                <path d="M9.5 19a2.5 2.5 0 0 0 5 0" />
+              </svg>
+              <span
+                class="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-red-500"
+              ></span>
+            </button>
+            <button
+              class="w-11 h-11 flex items-center justify-center rounded-full bg-white shadow-sm hover:shadow transition"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                class="w-5 h-5 text-slate-500"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+            </button>
+            <div class="flex items-center gap-2 cursor-pointer">
+              <img
+                src="https://i.pravatar.cc/64?img=47"
+                class="w-11 h-11 rounded-full object-cover"
+                alt="profile"
+              />
+              <svg
+                viewBox="0 0 24 24"
+                class="w-4 h-4 text-slate-400"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stat cards -->
+        <div class="grid grid-cols-4 gap-5 mb-6">
+          <div
+            v-for="s in stats"
+            :key="s.label"
+            class="bg-white rounded-2xl shadow-sm p-5"
+          >
+            <div class="flex items-center justify-between mb-4">
+              <div
+                class="w-11 h-11 rounded-xl flex items-center justify-center"
+                :class="s.iconBg"
+              >
+                <component :is="s.icon" class="w-5 h-5" :class="s.iconColor" />
+              </div>
+              <span
+                class="text-xs font-semibold px-2 py-1 rounded-full"
+                :class="s.trendUp ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'"
+              >
+                {{ s.trendUp ? '▲' : '▼' }} {{ s.trend }}
+              </span>
+            </div>
+            <p class="text-2xl font-extrabold text-slate-900">{{ s.value }}</p>
+            <p class="text-slate-400 text-sm mt-1">{{ s.label }}</p>
+          </div>
+        </div>
+
+        <!-- Charts row -->
+        <div class="grid grid-cols-3 gap-5 mb-6">
+          <!-- Revenue chart -->
+          <div class="col-span-2 bg-white rounded-2xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <h2 class="text-lg font-bold text-slate-900">Revenue</h2>
+                <p class="text-slate-400 text-sm">Last 7 months performance</p>
+              </div>
+              <div class="flex items-center gap-4 text-sm">
+                <span class="flex items-center gap-1.5 text-slate-500"
+                  ><span class="w-2.5 h-2.5 rounded-full bg-brand"></span
+                  >Revenue</span
+                >
+                <span class="flex items-center gap-1.5 text-slate-500"
+                  ><span class="w-2.5 h-2.5 rounded-full bg-slate-200"></span
+                  >Orders</span
+                >
+              </div>
+            </div>
+            <canvas ref="revenueChart" height="120"></canvas>
+          </div>
+
+          <!-- Order status donut -->
+          <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col">
+            <h2 class="text-lg font-bold text-slate-900 mb-1">Order Status</h2>
+            <p class="text-slate-400 text-sm mb-4">Distribution this month</p>
+            <div class="flex-1 flex items-center justify-center relative">
+              <canvas ref="statusChart" width="180" height="180"></canvas>
+              <div
+                class="absolute inset-0 flex flex-col items-center justify-center"
+              >
+                <span class="text-2xl font-extrabold text-slate-900"
+                  >1,284</span
+                >
+                <span class="text-slate-400 text-xs">Total Orders</span>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2 mt-4">
+              <div
+                v-for="st in orderStatus"
+                :key="st.label"
+                class="flex items-center justify-between text-sm"
+              >
+                <span class="flex items-center gap-2 text-slate-500"
+                  ><span
+                    class="w-2.5 h-2.5 rounded-full"
+                    :class="st.color"
+                  ></span
+                  >{{ st.label }}</span
+                >
+                <span class="font-semibold text-slate-700"
+                  >{{ st.value }}%</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom row: top products, stock, recent orders -->
+        <div class="grid grid-cols-3 gap-5">
+          <!-- Top selling products -->
+          <div class="bg-white rounded-2xl shadow-sm p-6">
+            <h2 class="text-lg font-bold text-slate-900 mb-1">Top Products</h2>
+            <p class="text-slate-400 text-sm mb-5">Best sellers this month</p>
+            <div class="flex flex-col gap-4">
+              <div
+                v-for="p in topProducts"
+                :key="p.name"
+                class="flex items-center gap-3"
+              >
+                <img
+                  :src="p.image"
+                  class="w-11 h-11 rounded-xl object-cover shrink-0"
+                  :alt="p.name"
+                />
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <p class="font-semibold text-slate-800 text-sm truncate">
+                      {{ p.name }}
+                    </p>
+                    <p
+                      class="font-semibold text-slate-800 text-sm shrink-0 ml-2"
+                    >
+                      ${{ p.revenue }}
+                    </p>
+                  </div>
+                  <div class="w-full h-1.5 bg-slate-100 rounded-full mt-2">
+                    <div
+                      class="h-1.5 rounded-full bg-brand"
+                      :style="{ width: p.percent + '%' }"
+                    ></div>
+                  </div>
+                  <p class="text-slate-400 text-xs mt-1">{{ p.sold }} sold</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stock overview -->
+          <div class="bg-white rounded-2xl shadow-sm p-6">
+            <h2 class="text-lg font-bold text-slate-900 mb-1">
+              Stock Overview
+            </h2>
+            <p class="text-slate-400 text-sm mb-5">Items running low</p>
+            <div class="flex flex-col gap-4">
+              <div
+                v-for="s in stockItems"
+                :key="s.name"
+                class="flex items-center gap-3"
+              >
+                <img
+                  :src="s.image"
+                  class="w-11 h-11 rounded-xl object-cover shrink-0"
+                  :alt="s.name"
+                />
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-slate-800 text-sm truncate">
+                    {{ s.name }}
+                  </p>
+                  <div class="w-full h-1.5 bg-slate-100 rounded-full mt-2">
+                    <div
+                      class="h-1.5 rounded-full"
+                      :class="s.qty <= 10 ? 'bg-red-400' : 'bg-emerald-400'"
+                      :style="{ width: Math.min(100, s.qty) + '%' }"
+                    ></div>
+                  </div>
+                </div>
+                <span
+                  class="text-xs font-semibold shrink-0 px-2 py-1 rounded-full"
+                  :class="s.qty <= 10 ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-500'"
+                >
+                  {{ s.qty }} left
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent orders -->
+          <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <h2 class="text-lg font-bold text-slate-900">Recent Orders</h2>
+                <p class="text-slate-400 text-sm">Latest activity</p>
+              </div>
+              <a
+                href="#"
+                class="text-brand text-sm font-semibold hover:underline"
+                >View all</a
+              >
+            </div>
+            <div class="flex flex-col gap-4">
+              <div
+                v-for="o in recentOrders"
+                :key="o.id"
+                class="flex items-center gap-3"
+              >
+                <img
+                  :src="o.avatar"
+                  class="w-9 h-9 rounded-full object-cover shrink-0"
+                  :alt="o.name"
+                />
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-slate-800 text-sm truncate">
+                    {{ o.name }}
+                  </p>
+                  <p class="text-slate-400 text-xs">
+                    #{{ o.id }} · {{ o.date }}
+                  </p>
+                </div>
+                <div class="text-right shrink-0">
+                  <p class="font-semibold text-slate-800 text-sm">
+                    ${{ o.price.toFixed(2) }}
+                  </p>
+                  <p
+                    class="text-xs font-medium"
+                    :class="{
+                'text-red-500': o.status === 'Pending',
+                'text-emerald-500': o.status === 'Dispatch',
+                'text-slate-400': o.status === 'Completed'
+              }"
+                  >
+                    {{ o.status }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const { createApp } = Vue;
+
+      const IconDashboard = {
+        template: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>`,
+      };
+      const IconOrder = {
+        template: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.2" fill="currentColor" stroke="none"/><circle cx="18" cy="20" r="1.2" fill="currentColor" stroke="none"/></svg>`,
+      };
+      const IconStatistic = {
+        template: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 9 9h-9Z" fill="currentColor" stroke="none" opacity=".9"/></svg>`,
+      };
+      const IconProduct = {
+        template: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>`,
+      };
+      const IconStock = {
+        template: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-6-3.46a2 2 0 0 0-2 0l-6 3.46A2 2 0 0 0 5 8v8a2 2 0 0 0 1 1.73l6 3.46a2 2 0 0 0 2 0l6-3.46A2 2 0 0 0 21 16Z"/><path d="m3.27 6.96 8.73 5.05 8.73-5.05M12 22.08V12"/></svg>`,
+      };
+      const IconOffer = {
+        template: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.6 12.6 12.6 20.6a2 2 0 0 1-2.82 0l-8.4-8.4a2 2 0 0 1-.58-1.42V4.2a2 2 0 0 1 2-2h6.58c.53 0 1.04.21 1.42.59l8.4 8.4a2 2 0 0 1 0 2.82Z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/></svg>`,
+      };
+
+      const IconRevenue = {
+        template: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+      };
+      const IconCart = {
+        template: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.2" fill="currentColor" stroke="none"/><circle cx="18" cy="20" r="1.2" fill="currentColor" stroke="none"/></svg>`,
+      };
+      const IconBox = {
+        template: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>`,
+      };
+      const IconUsers = {
+        template: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6.2 6.5-6.2s6.5 2.6 6.5 6.2"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M15.5 13.9c2.9.3 5 2.7 5 6.1"/></svg>`,
+      };
+
+      createApp({
+        components: {
+          IconDashboard,
+          IconOrder,
+          IconStatistic,
+          IconProduct,
+          IconStock,
+          IconOffer,
+        },
+        data() {
+          return {
+            activeNav: "Dashboard",
+            navItems: [
+              { name: "Dashboard", icon: "IconDashboard" },
+              { name: "Order", icon: "IconOrder" },
+              { name: "Statistic", icon: "IconStatistic" },
+              { name: "Product", icon: "IconProduct" },
+              { name: "Stock", icon: "IconStock" },
+              { name: "Offer", icon: "IconOffer" },
+            ],
+            stats: [
+              {
+                label: "Total Revenue",
+                value: "$48,290",
+                trend: "12.4%",
+                trendUp: true,
+                icon: IconRevenue,
+                iconBg: "bg-brand/10",
+                iconColor: "text-brand",
+              },
+              {
+                label: "Total Orders",
+                value: "1,284",
+                trend: "8.2%",
+                trendUp: true,
+                icon: IconCart,
+                iconBg: "bg-emerald-50",
+                iconColor: "text-emerald-500",
+              },
+              {
+                label: "Total Products",
+                value: "342",
+                trend: "2.1%",
+                trendUp: false,
+                icon: IconBox,
+                iconBg: "bg-amber-50",
+                iconColor: "text-amber-500",
+              },
+              {
+                label: "Total Customers",
+                value: "2,940",
+                trend: "5.6%",
+                trendUp: true,
+                icon: IconUsers,
+                iconBg: "bg-violet-50",
+                iconColor: "text-violet-500",
+              },
+            ],
+            orderStatus: [
+              { label: "Completed", value: 52, color: "bg-slate-300" },
+              { label: "Dispatch", value: 31, color: "bg-emerald-500" },
+              { label: "Pending", value: 17, color: "bg-red-500" },
+            ],
+            topProducts: [
+              {
+                name: "Wireless Headphones",
+                image: "https://picsum.photos/seed/prod1/80/80",
+                sold: 482,
+                revenue: "12,480",
+                percent: 90,
+              },
+              {
+                name: "Smart Watch Series 4",
+                image: "https://picsum.photos/seed/prod2/80/80",
+                sold: 356,
+                revenue: "9,870",
+                percent: 72,
+              },
+              {
+                name: "Leather Backpack",
+                image: "https://picsum.photos/seed/prod3/80/80",
+                sold: 298,
+                revenue: "7,420",
+                percent: 60,
+              },
+              {
+                name: "Bluetooth Speaker",
+                image: "https://picsum.photos/seed/prod4/80/80",
+                sold: 210,
+                revenue: "5,150",
+                percent: 45,
+              },
+            ],
+            stockItems: [
+              {
+                name: "Wireless Headphones",
+                image: "https://picsum.photos/seed/prod1/80/80",
+                qty: 8,
+              },
+              {
+                name: "Smart Watch Series 4",
+                image: "https://picsum.photos/seed/prod2/80/80",
+                qty: 42,
+              },
+              {
+                name: "Leather Backpack",
+                image: "https://picsum.photos/seed/prod3/80/80",
+                qty: 6,
+              },
+              {
+                name: "Bluetooth Speaker",
+                image: "https://picsum.photos/seed/prod4/80/80",
+                qty: 65,
+              },
+            ],
+            recentOrders: [
+              {
+                id: 2038,
+                name: "Nadia Torres",
+                date: "03 Aug 2020",
+                price: 92.0,
+                status: "Completed",
+                avatar: "https://i.pravatar.cc/64?img=48",
+              },
+              {
+                id: 2037,
+                name: "Rebekah Foster",
+                date: "03 Aug 2020",
+                price: 67.0,
+                status: "Pending",
+                avatar: "https://i.pravatar.cc/64?img=14",
+              },
+              {
+                id: 2036,
+                name: "Mark Clark",
+                date: "03 Aug 2020",
+                price: 39.0,
+                status: "Dispatch",
+                avatar: "https://i.pravatar.cc/64?img=13",
+              },
+              {
+                id: 2035,
+                name: "Verrie Hott",
+                date: "02 Aug 2020",
+                price: 62.0,
+                status: "Pending",
+                avatar: "https://i.pravatar.cc/64?img=51",
+              },
+            ],
+          };
+        },
+        mounted() {
+          new Chart(this.$refs.revenueChart, {
+            type: "line",
+            data: {
+              labels: ["Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"],
+              datasets: [
+                {
+                  label: "Revenue",
+                  data: [28000, 32000, 30500, 38000, 41000, 44500, 48290],
+                  borderColor: "#1046ee",
+                  backgroundColor: "rgba(16,70,238,0.08)",
+                  fill: true,
+                  tension: 0.4,
+                  pointRadius: 0,
+                  borderWidth: 3,
+                },
+                {
+                  label: "Orders",
+                  data: [820, 910, 880, 1020, 1120, 1190, 1284],
+                  borderColor: "#cbd5e1",
+                  backgroundColor: "transparent",
+                  fill: false,
+                  tension: 0.4,
+                  pointRadius: 0,
+                  borderWidth: 2,
+                  yAxisID: "y1",
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              interaction: { mode: "index", intersect: false },
+              plugins: { legend: { display: false } },
+              scales: {
+                y: {
+                  grid: { color: "#f1f5f9" },
+                  ticks: { callback: (v) => "$" + v / 1000 + "k" },
+                },
+                y1: { display: false, position: "right" },
+                x: { grid: { display: false } },
+              },
+            },
+          });
+
+          new Chart(this.$refs.statusChart, {
+            type: "doughnut",
+            data: {
+              labels: ["Completed", "Dispatch", "Pending"],
+              datasets: [
+                {
+                  data: [52, 31, 17],
+                  backgroundColor: ["#cbd5e1", "#10b981", "#ef4444"],
+                  borderWidth: 0,
+                },
+              ],
+            },
+            options: {
+              cutout: "75%",
+              plugins: {
+                legend: { display: false },
+                tooltip: { enabled: true },
+              },
+            },
+          });
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
