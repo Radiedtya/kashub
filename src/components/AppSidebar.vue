@@ -1,7 +1,23 @@
 <template>
   <aside
-    class="w-64 shrink-0 bg-linear-to-b from-[#2a3f8d] to-[#0e39e3] text-white flex flex-col py-8 px-4 rounded-tl-[55px] rounded-br-[55px] overflow-visible"
+    :class="[
+      'w-64 shrink-0 bg-linear-to-b from-[#2a3f8d] to-[#0e39e3] text-white flex flex-col py-8 px-4 rounded-tl-[55px] rounded-br-[55px] overflow-visible transition-transform duration-300 ease-in-out',
+      // Mobile: jadi drawer fixed, geser masuk/keluar dari kiri
+      'fixed inset-y-0 left-0 z-50',
+      isOpen ? 'translate-x-0' : '-translate-x-full',
+      // Desktop (md ke atas): balik statis normal, selalu tampil, radius desktop tetap
+      'md:static md:translate-x-0 md:z-auto',
+    ]"
   >
+    <!-- Tombol close, cuma muncul di mobile -->
+    <button
+      type="button"
+      @click="$emit('close')"
+      class="md:hidden absolute top-4 right-4 text-white/70 hover:text-white"
+    >
+      <XMarkIcon class="w-6 h-6" />
+    </button>
+
     <!-- Logo / Brand & Badge Role -->
     <div class="flex items-center gap-2.5 px-4 mb-10">
       <div
@@ -157,7 +173,17 @@ import {
   ClockIcon,
   ArrowsRightLeftIcon,
   AcademicCapIcon,
+  XMarkIcon,
 } from "@heroicons/vue/24/outline";
+
+defineProps({
+  isOpen: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+defineEmits(["close"]);
 
 const authStore = useAuthStore();
 </script>
@@ -167,42 +193,54 @@ const authStore = useAuthStore();
   position: relative;
 }
 
-/* Item aktif: putih (zinc-50), nembus ke tepi kanan sidebar */
+/* Default (mobile-first): style item aktif polos, rounded penuh,
+   TANPA efek bleed/curve. Di mobile sidebar itu drawer overlay
+   sendirian di atas backdrop gelap, bukan nempel ke bg-zinc-50 —
+   jadi efek "nembus ke tepi kanan" bakal keliatan defect/ngambang. */
 .nav-active {
   background-color: #fafafa; /* bg-zinc-50 */
   color: #1d4ed8; /* blue-700 */
   font-weight: 600;
-  border-radius: 1rem 0 0 1rem; /* cuma sisi kiri dibulatkan */
-  margin-right: -1.5rem; /* tembus px-4 (aside) + px-2 (nav) */
+  border-radius: 1rem;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-/* Konektor melengkung di atas item aktif */
-.nav-active::before,
-.nav-active::after {
-  content: "";
-  position: absolute;
-  right: -1.5rem; /* sejajar sama tepi kanan item aktif */
-  width: 1.25rem;
-  height: 1.25rem;
-  pointer-events: none;
-}
+/* Efek bleed + curve connector HANYA aktif di desktop (md ke atas).
+   Di situ sidebar statis nempel langsung ke background utama
+   (bg-zinc-50) yang warnanya sama persis, jadi transisi curve-nya
+   nyambung mulus - bukan ngambang kayak di mobile. */
+@media (min-width: 768px) {
+  .nav-active {
+    border-radius: 1rem 0 0 1rem;
+    margin-right: -1.5rem;
+  }
 
-.nav-active::before {
-  top: -1.25rem; /* nongol ke celah SEBELUM item ini */
-  background: radial-gradient(
-    circle at 0 0,
-    transparent 1.25rem,
-    #fafafa 1.26rem
-  );
-}
+  .nav-active::before,
+  .nav-active::after {
+    content: "";
+    position: absolute;
+    right: -1.5rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    pointer-events: none;
+  }
 
-.nav-active::after {
-  bottom: -1.25rem; /* nongol ke celah SETELAH item ini */
-  background: radial-gradient(
-    circle at 0 100%,
-    transparent 1.25rem,
-    #fafafa 1.26rem
-  );
+  .nav-active::before {
+    top: -1.25rem;
+    background: radial-gradient(
+      circle at 0 0,
+      transparent 1.25rem,
+      #fafafa 1.26rem
+    );
+  }
+
+  .nav-active::after {
+    bottom: -1.25rem;
+    background: radial-gradient(
+      circle at 0 100%,
+      transparent 1.25rem,
+      #fafafa 1.26rem
+    );
+  }
 }
 </style>

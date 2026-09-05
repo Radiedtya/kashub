@@ -1,21 +1,32 @@
 <template>
   <header
-    class="px-10 py-6 flex items-center justify-between shrink-0 relative z-50"
+    class="px-4 py-4 md:px-10 md:py-6 flex items-center justify-between shrink-0 relative z-30 gap-3"
   >
-    <!-- Breadcrumb Dinamis & Judul -->
-    <div>
-      <h1 class="text-2xl font-bold text-slate-700">
-        {{ currentTitle }}
-      </h1>
-      <p class="text-slate-400 mt-1">
-        Selamat datang kembali,
-        <span class="font-semibold text-black">{{ authStore.user?.name }}</span>
-      </p>
+    <div class="flex items-center gap-3 min-w-0">
+      <!-- Tombol Hamburger, cuma muncul di mobile -->
+      <button
+        type="button"
+        @click="$emit('toggle-sidebar')"
+        class="md:hidden shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm hover:shadow transition"
+      >
+        <Bars3Icon class="w-5 h-5 text-slate-600" />
+      </button>
+
+      <!-- Breadcrumb Dinamis & Judul -->
+      <div class="min-w-0">
+        <h1 class="text-lg md:text-2xl font-bold text-slate-700 truncate">
+          {{ currentTitle }}
+        </h1>
+        <p class="text-slate-400 mt-1 text-xs md:text-base truncate hidden sm:block">
+          Selamat datang kembali,
+          <span class="font-semibold text-black">{{ authStore.user?.name }}</span>
+        </p>
+      </div>
     </div>
 
-    <div class="flex items-center gap-5">
-      <!-- Jam & Tanggal -->
-      <div class="text-right hidden md:block mr-2">
+    <div class="flex items-center gap-3 md:gap-5 shrink-0">
+      <!-- Jam & Tanggal, cuma muncul di layar lebih lebar dari mobile -->
+      <div class="text-right hidden lg:block mr-2">
         <p class="text-sm font-semibold text-slate-800">
           {{ currentTime }}
         </p>
@@ -26,7 +37,7 @@
       <Menu as="div" class="relative">
         <MenuButton
           @click="notifikasiStore.fetchNotifikasi()"
-          class="relative w-11 h-11 flex items-center justify-center rounded-full bg-white shadow-sm hover:shadow transition focus:outline-none"
+          class="relative w-10 h-10 md:w-11 md:h-11 flex items-center justify-center rounded-full bg-white shadow-sm hover:shadow transition focus:outline-none"
         >
           <BellIcon class="w-5 h-5 text-slate-500" />
           <span
@@ -49,7 +60,7 @@
           leave-to-class="transform opacity-0 scale-95"
         >
           <MenuItems
-            class="absolute right-0 mt-2 w-80 sm:w-96 origin-top-right bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none divide-y divide-gray-100 z-50"
+            class="fixed sm:absolute left-2 right-2 sm:left-auto sm:right-0 top-16 sm:top-auto mt-0 sm:mt-2 w-auto sm:w-80 md:w-96 origin-top-right bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none divide-y divide-gray-100 z-50"
           >
             <div class="p-4 flex justify-between items-center">
               <p class="text-sm font-semibold text-gray-800">
@@ -126,17 +137,17 @@
           <img
             v-if="authStore.user?.foto"
             :src="authStore.user.foto"
-            class="w-11 h-11 rounded-full object-cover border border-slate-200"
+            class="w-10 h-10 md:w-11 md:h-11 rounded-full object-cover border border-slate-200"
             alt="foto profil"
           />
           <!-- Jika tidak ada foto, tampilkan ikon person -->
           <div
             v-else
-            class="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 border border-slate-200"
+            class="w-10 h-10 md:w-11 md:h-11 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 border border-slate-200"
           >
             <UserIcon class="w-6 h-6" />
           </div>
-          <ChevronDownIcon class="w-4 h-4 text-slate-400" />
+          <ChevronDownIcon class="w-4 h-4 text-slate-400 hidden sm:block" />
         </MenuButton>
 
         <transition
@@ -195,13 +206,16 @@ import { useNotifikasiStore } from "@/stores/notifikasi";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import {
+  Bars3Icon,
   BellIcon,
   BellSlashIcon,
   ArrowRightOnRectangleIcon,
   ChevronDownIcon,
   UserCircleIcon,
-  UserIcon, // <-- Import UserIcon buat default avatar
+  UserIcon,
 } from "@heroicons/vue/24/outline";
+
+defineEmits(["toggle-sidebar"]);
 
 dayjs.locale("id");
 const authStore = useAuthStore();
