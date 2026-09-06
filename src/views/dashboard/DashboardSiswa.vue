@@ -9,10 +9,7 @@
       <div
         class="siswa-header bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4"
       >
-        <!-- <div class="w-16 h-16 rounded-xl bg-zinc-900 flex items-center justify-center text-white font-bold text-2xl shrink-0 border border-zinc-800">
-          {{ dashboardData.profil?.nama?.charAt(0) || "S" }}
-        </div> -->
-        <div class="flex-1">
+        <div class="flex-1 w-full">
           <h1 class="text-2xl font-bold text-zinc-900">
             {{ dashboardData.profil?.nama }}
           </h1>
@@ -28,7 +25,7 @@
           <p class="text-xs text-zinc-400 uppercase tracking-wider mb-1">
             Status Iuran Terbaru
           </p>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 mb-3">
             <span
               class="w-2 h-2 rounded-full"
               :class="
@@ -57,6 +54,21 @@
                     : "Belum Bayar"
               }}
             </span>
+          </div>
+
+          <!-- Progress Bar Tagihan -->
+          <div class="w-full sm:w-48">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-[10px] font-medium text-zinc-500">Progress Tagihan</span>
+              <span class="text-[10px] font-bold text-zinc-700">{{ dashboardData.statistik.total_transaksi }} / {{ dashboardData.statistik.total_iuran_kelas || 0 }}</span>
+            </div>
+            <div class="w-full h-2 bg-zinc-100 rounded-full overflow-hidden">
+              <div 
+                class="h-full rounded-full transition-all duration-500" 
+                :class="paymentProgress === 100 ? 'bg-emerald-500' : 'bg-blue-600'"
+                :style="{ width: paymentProgress + '%' }"
+              ></div>
+            </div>
           </div>
         </div>
       </div>
@@ -291,7 +303,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import DashboardService from "@/api/dashboard";
 import { toast } from "vue3-toastify";
@@ -322,6 +334,15 @@ const formatRupiah = (angka) => {
 const formatDate = (date) => {
   return dayjs(date).format("DD MMM YYYY");
 };
+
+// Computed buat ngitung persen progress tagihan siswa
+const paymentProgress = computed(() => {
+  if (!dashboardData.value) return 0;
+  const totalIuran = dashboardData.value.statistik.total_iuran_kelas || 0;
+  const paidIuran = dashboardData.value.statistik.total_transaksi || 0;
+  if (totalIuran === 0) return 0;
+  return Math.min(100, Math.round((paidIuran / totalIuran) * 100));
+});
 
 // --- Anime.js Stagger Animation ---
 const triggerAnimations = () => {

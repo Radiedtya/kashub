@@ -79,6 +79,30 @@
               >
             </div>
           </div>
+
+          <!-- Progress Bar Tagihan Siswa -->
+          <div class="mt-4 pt-4 border-t border-zinc-100 w-full">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-xs font-medium text-zinc-500"
+                >Progress Tagihan Iuran</span
+              >
+              <span class="text-xs font-bold text-zinc-700"
+                >{{ paidIuranCount }} / {{ totalIuranCount }} Lunas</span
+              >
+            </div>
+            <div class="w-full h-2.5 bg-zinc-100 rounded-full overflow-hidden">
+              <div
+                class="h-full rounded-full transition-all duration-500"
+                :class="
+                  paymentProgress === 100 ? 'bg-emerald-500' : 'bg-blue-600'
+                "
+                :style="{ width: paymentProgress + '%' }"
+              ></div>
+            </div>
+            <p class="text-[10px] text-zinc-400 mt-1 text-right">
+              {{ paymentProgress }}% Selesai
+            </p>
+          </div>
         </div>
 
         <!-- Card Orang Tua (Hanya Guru) -->
@@ -228,12 +252,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { toast } from "vue3-toastify";
 import SiswaService from "@/api/siswa";
 import TransaksiService from "@/api/transaksi";
 import KeterlambatanService from "@/api/keterlambatan";
+import IuranService from "@/api/iuran";
 import { ChevronLeftIcon, UserIcon } from "@heroicons/vue/24/outline";
 import { useAuthStore } from "@/stores/auth";
 import dayjs from "dayjs";
@@ -245,6 +270,7 @@ const siswaId = route.params.id;
 const siswaData = ref(null);
 const transaksiList = ref([]);
 const keterlambatanList = ref([]);
+const allIuranList = ref([]);
 const loading = ref(true);
 
 const formatRupiah = (angka) =>
@@ -278,6 +304,25 @@ const getStatusClass = (status) => {
   return "bg-zinc-50 text-zinc-600";
 };
 
+// Computed buat Progress Bar
+const totalIuranCount = computed(() => allIuranList.value.length);
+
+const paidIuranCount = computed(() => {
+  // Cek iuran yang udah confirmed (unik berdasarkan iuran_id)
+  const paidIuranIds = transaksiList.value
+    .filter((t) => t.status === "confirmed")
+    .map((t) => t.iuran_id);
+  return [...new Set(paidIuranIds)].length;
+});
+
+const paymentProgress = computed(() => {
+  if (totalIuranCount.value === 0) return 0;
+  return Math.min(
+    100,
+    Math.round((paidIuranCount.value / totalIuranCount.value) * 100),
+  );
+});
+
 const fetchDetail = async () => {
   loading.value = true;
   try {
@@ -293,6 +338,12 @@ const fetchDetail = async () => {
     const resTelat = await KeterlambatanService.getBySiswa(siswaId);
     // Karena backend getbySiswa return object { siswa, total_keterlambatan, keterlambatan: [...] }
     keterlambatanList.value = resTelat.data.data.keterlambatan || [];
+
+    // TAMBAHAN: Fetch Iuran by Kelas Siswa buat ngitung progress
+    if (siswaData.value.kelas_id) {
+      const resIuran = await IuranService.getByKelas(siswaData.value.kelas_id);
+      allIuranList.value = resIuran.data.data.iuran || [];
+    }
   } catch (error) {
     console.error(error);
     toast.error("Gagal memuat detail siswa");
