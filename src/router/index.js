@@ -11,6 +11,7 @@ import Dashboard from "@/views/dashboard/Dashboard.vue";
 // Master
 import Profile from "@/views/other/Profile.vue";
 import Siswa from "@/views/master/Siswa.vue";
+import SiswaDetail from "@/views/master/SiswaDetail.vue";
 import Kelas from "@/views/master/Kelas.vue";
 import Iuran from "@/views/master/Iuran.vue";
 
@@ -52,6 +53,12 @@ const routes = [
         name: "siswa",
         component: Siswa,
         meta: { title: "Data Siswa" },
+      },
+      {
+        path: "siswa/:id",
+        name: "siswa-detail",
+        component: SiswaDetail,
+        meta: { title: "Detail Siswa" },
       },
       {
         path: "kelas",
