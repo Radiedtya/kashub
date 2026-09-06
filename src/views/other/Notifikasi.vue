@@ -70,12 +70,11 @@
       <div 
         v-for="notif in notifikasiStore.notifikasi" 
         :key="notif.id" 
-        class="flex items-start gap-4 p-6 hover:bg-zinc-50 transition cursor-pointer"
+        class="flex items-start gap-4 p-6 hover:bg-zinc-50 transition"
         :class="!notif.is_read ? 'bg-blue-50/30' : ''"
-        @click="handleClick(notif)"
       >
         <!-- Checkbox -->
-        <div @click.stop class="pt-1">
+        <div class="pt-1">
           <input 
             type="checkbox" 
             :value="notif.id" 
@@ -88,7 +87,6 @@
         <div 
           class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-1 overflow-hidden border border-zinc-100"
           :class="!notif.sender ? getIconBg(notif.tipe) : 'bg-zinc-100'"
-          @click.stop
         >
           <img v-if="notif.sender?.foto" :src="notif.sender.foto" class="w-full h-full object-cover" alt="foto" />
           <div v-else-if="notif.sender" class="w-full h-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold text-xs">
@@ -114,13 +112,28 @@
           </div>
         </div>
 
-        <button 
-          v-if="notif.is_read" 
-          @click.stop="handleDelete(notif)" 
-          class="text-zinc-300 hover:text-red-500 transition shrink-0"
-        >
-          <TrashIcon class="w-4 h-4" />
-        </button>
+        <!-- Tombol Aksi Kanan (Tandai Dibaca & Hapus) -->
+        <div class="flex flex-col gap-2 shrink-0 pt-1">
+          <!-- Tombol Centang (Tandai Dibaca) -->
+          <button 
+            @click="handleMarkAsRead(notif)" 
+            class="p-1.5 rounded-md transition border"
+            :class="notif.is_read ? 'text-emerald-500 border-emerald-200 bg-emerald-50 cursor-default' : 'text-zinc-400 border-zinc-200 hover:bg-zinc-100 hover:text-zinc-700'"
+            :disabled="notif.is_read"
+            :title="notif.is_read ? 'Sudah dibaca' : 'Tandai sudah dibaca'"
+          >
+            <CheckCircleIcon class="w-4 h-4" />
+          </button>
+
+          <!-- Tombol Hapus -->
+          <button 
+            @click="handleDelete(notif)" 
+            class="p-1.5 rounded-md text-zinc-300 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition"
+            title="Hapus notifikasi"
+          >
+            <TrashIcon class="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </div>
 
@@ -258,7 +271,6 @@
 
 <script setup>
 import { ref, onMounted, reactive, computed } from 'vue';
-import { useRouter } from 'vue-router';
 import { toast } from 'vue3-toastify';
 import Swal from 'sweetalert2';
 import { useAuthStore } from '@/stores/auth';
@@ -280,7 +292,6 @@ dayjs.extend(relativeTime);
 
 const authStore = useAuthStore();
 const notifikasiStore = useNotifikasiStore();
-const router = useRouter();
 const kelasList = ref([]);
 const siswaList = ref([]); // <-- Buat nyimpen list siswa
 
@@ -347,12 +358,15 @@ const handleMarkAllRead = async () => {
   }
 };
 
-const handleClick = async (notif) => {
+// --- Logic Baru: Klik tombol centang untuk tandai dibaca ---
+const handleMarkAsRead = async (notif) => {
   if (!notif.is_read) {
-    await notifikasiStore.markAsRead(notif.id);
-  }
-  if (notif.link) {
-    router.push(notif.link);
+    try {
+      await notifikasiStore.markAsRead(notif.id);
+      // toast.success('Notifikasi ditandai dibaca'); // Opsional kalau mau pake toast
+    } catch (error) {
+      console.error("Gagal mark as read", error);
+    }
   }
 };
 

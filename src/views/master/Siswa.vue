@@ -240,7 +240,7 @@
                     <TrashIcon class="w-4 h-4" />
                   </button>
                 </template>
-                <span v-else class="text-xs text-zinc-300 italic">-</span>
+                <span v-else class="text-xs text-zinc-300 italic">tidak ada aksi</span>
               </div>
             </div>
           </div>
