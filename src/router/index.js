@@ -21,6 +21,7 @@ import Transaksi from "@/views/keuangan/Transaksi.vue";
 import Keterlambatan from "@/views/keuangan/Keterlambatan.vue";
 
 // Other
+import Pengaturan from "@/views/other/Pengaturan.vue";
 import Notifikasi from "@/views/other/Notifikasi.vue";
 import Laporan from "@/views/other/Laporan.vue";
 
@@ -95,6 +96,12 @@ const routes = [
         name: "laporan",
         component: Laporan,
         meta: { title: "Laporan" },
+      },
+      {
+        path: "pengaturan",
+        name: "pengaturan",
+        component: Pengaturan,
+        meta: { title: "Pengaturan" },
       },
       {
         path: "keterlambatan",

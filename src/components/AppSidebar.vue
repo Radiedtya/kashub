@@ -138,12 +138,12 @@
       </router-link>
     </nav>
 
-    <!-- ==================== LAPORAN ==================== -->
+    <!-- ==================== Lainnya ==================== -->
     <div
       v-if="authStore.role === 'guru' || authStore.role === 'bendahara'"
       class="px-4 mt-6 mb-2 text-[11px] font-semibold uppercase tracking-wider text-white/40"
     >
-      Laporan
+      Lainnya
     </div>
 
     <nav
@@ -158,6 +158,16 @@
       >
         <ChartBarIcon class="w-5 h-5 shrink-0" />
         <span class="text-sm">Laporan</span>
+      </router-link>
+
+      <router-link
+        v-if="authStore.role === 'guru'"
+        to="/pengaturan"
+        class="nav-link relative z-10 flex items-center gap-3 px-4 py-3 rounded-l-2xl transition-all duration-200 text-white/70 hover:bg-white/10 hover:text-white"
+        active-class="nav-active"
+      >
+        <Cog6ToothIcon class="w-5 h-5 shrink-0" />
+        <span class="text-sm">Pengaturan Denda</span>
       </router-link>
     </nav>
 
@@ -183,7 +193,8 @@ import {
   ArrowsRightLeftIcon,
   AcademicCapIcon,
   XMarkIcon,
-  BellIcon, // <-- Import BellIcon
+  BellIcon,
+  Cog6ToothIcon,
 } from "@heroicons/vue/24/outline";
 
 defineProps({
