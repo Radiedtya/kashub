@@ -9,6 +9,15 @@
           {{ filteredTransaksi.length }} transaksi ditemukan
         </p>
       </div>
+      <!-- Tombol Input Pembayaran (Hanya Guru & Bendahara) -->
+      <button
+        v-if="authStore.role === 'guru' || authStore.role === 'bendahara'"
+        @click="openInputModal"
+        class="bg-zinc-900 text-white px-4 py-2.5 rounded-lg font-semibold text-sm hover:bg-zinc-800 transition flex items-center gap-2 w-full sm:w-auto justify-center"
+      >
+        <PlusIcon class="w-4 h-4" />
+        Input Pembayaran
+      </button>
     </div>
 
     <!-- Card Tabel -->
@@ -263,16 +272,247 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal Input Pembayaran (Guru/Bendahara) -->
+    <TransitionRoot appear :show="isInputModalOpen" as="template">
+      <Dialog as="div" @close="closeInputModal" class="relative z-50">
+        <TransitionChild
+          as="template"
+          enter="duration-300 ease-out"
+          enter-from="opacity-0"
+          enter-to="opacity-100"
+          leave="duration-200 ease-in"
+          leave-from="opacity-100"
+          leave-to="opacity-0"
+        >
+          <div class="fixed inset-0 bg-zinc-900/50 backdrop-blur-sm" />
+        </TransitionChild>
+        <div class="fixed inset-0 overflow-y-auto">
+          <div class="flex min-h-full items-center justify-center p-4">
+            <TransitionChild
+              as="template"
+              enter="duration-300 ease-out"
+              enter-from="opacity-0 scale-95"
+              enter-to="opacity-100 scale-100"
+              leave="duration-200 ease-in"
+              leave-from="opacity-100 scale-100"
+              leave-to="opacity-0 scale-95"
+            >
+              <DialogPanel
+                class="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all"
+              >
+                <div
+                  class="px-6 py-4 border-b border-zinc-100 flex justify-between items-center"
+                >
+                  <DialogTitle as="h3" class="text-lg font-bold text-zinc-800">
+                    Input Pembayaran Siswa
+                  </DialogTitle>
+                  <button
+                    @click="closeInputModal"
+                    class="text-zinc-400 hover:text-zinc-600"
+                  >
+                    <XMarkIcon class="w-5 h-5" />
+                  </button>
+                </div>
+                <form
+                  @submit.prevent="submitInput"
+                  class="p-6 grid grid-cols-1 gap-y-4 max-h-[70vh] overflow-y-auto"
+                >
+                  <div>
+                    <label class="text-xs text-zinc-600 font-medium"
+                      >Pilih Siswa</label
+                    >
+                    <div class="relative mt-1">
+                      <UserIcon
+                        class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
+                      />
+                      <select
+                        v-model="inputForm.siswa_id"
+                        required
+                        @change="onSiswaChange"
+                        class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none bg-white appearance-none"
+                      >
+                        <option value="" disabled>Pilih Siswa</option>
+                        <option
+                          v-for="s in siswaList"
+                          :key="s.id"
+                          :value="s.id"
+                        >
+                          {{ s.user?.name }} ({{ s.kelas?.nama }})
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="text-xs text-zinc-600 font-medium"
+                      >Pilih Iuran</label
+                    >
+                    <div class="relative mt-1">
+                      <CurrencyDollarIcon
+                        class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
+                      />
+                      <select
+                        v-model="inputForm.iuran_id"
+                        required
+                        @change="onIuranChange"
+                        class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none bg-white appearance-none disabled:opacity-50 disabled:cursor-not-allowed transition"
+                        :disabled="!inputForm.siswa_id"
+                      >
+                        <option value="" disabled>Pilih Iuran</option>
+                        <option
+                          v-for="i in filteredIuranList"
+                          :key="i.id"
+                          :value="i.id"
+                        >
+                          {{ getMonthName(i.bulan) }} {{ i.tahun }} - Rp
+                          {{ formatRupiah(i.nominal) }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="text-xs text-zinc-600 font-medium"
+                        >Tanggal Bayar</label
+                      >
+                      <div class="relative mt-1">
+                        <CalendarDaysIcon
+                          class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2"
+                        />
+                        <input
+                          v-model="inputForm.tanggal_bayar"
+                          type="date"
+                          required
+                          class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label class="text-xs text-zinc-600 font-medium"
+                        >Jumlah (Rp)</label
+                      >
+                      <div class="relative mt-1">
+                        <BanknotesIcon
+                          class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2"
+                        />
+                        <input
+                          v-model="inputForm.jumlah"
+                          type="number"
+                          min="0"
+                          required
+                          class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="text-xs text-zinc-600 font-medium"
+                        >Metode Bayar</label
+                      >
+                      <div class="relative mt-1">
+                        <CreditCardIcon
+                          class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
+                        />
+                        <select
+                          v-model="inputForm.metode"
+                          required
+                          class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none bg-white appearance-none capitalize"
+                        >
+                          <option value="cash">Tunai (Cash)</option>
+                          <option value="transfer">Transfer Bank</option>
+                          <option value="qris">QRIS / E-Wallet</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label class="text-xs text-zinc-600 font-medium"
+                        >Status Transaksi</label
+                      >
+                      <div class="relative mt-1">
+                        <CheckCircleIcon
+                          class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
+                        />
+                        <select
+                          v-model="inputForm.status"
+                          required
+                          class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none bg-white appearance-none capitalize"
+                        >
+                          <option value="confirmed">
+                            Langsung Lunas (Confirm)
+                          </option>
+                          <option value="pending">
+                            Pending (Tunggu Konfirmasi)
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="text-xs text-zinc-600 font-medium"
+                      >Keterangan (Opsional)</label
+                    >
+                    <div class="relative mt-1">
+                      <ChatBubbleLeftIcon
+                        class="w-4 h-4 text-zinc-400 absolute left-3 top-3"
+                      />
+                      <textarea
+                        v-model="inputForm.keterangan"
+                        rows="2"
+                        class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none resize-none"
+                        placeholder="Contoh: Bayar tunai di kelas"
+                      ></textarea>
+                    </div>
+                  </div>
+                </form>
+                <div
+                  class="px-6 py-4 bg-zinc-50 border-t border-zinc-100 flex justify-end gap-3"
+                >
+                  <button
+                    type="button"
+                    @click="closeInputModal"
+                    class="px-4 py-2 rounded-lg bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-100 text-sm font-medium transition"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    @click="submitInput"
+                    :disabled="inputting"
+                    class="px-4 py-2 rounded-lg bg-zinc-900 text-white hover:bg-zinc-800 text-sm font-medium transition disabled:opacity-50 flex items-center gap-2"
+                  >
+                    <PlusIcon class="w-4 h-4" />
+                    {{ inputting ? "Menyimpan..." : "Simpan Transaksi" }}
+                  </button>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </div>
+      </Dialog>
+    </TransitionRoot>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from "vue";
+import { ref, computed, onMounted, nextTick, reactive } from "vue";
 import { toast } from "vue3-toastify";
 import Swal from "sweetalert2";
 import { useAuthStore } from "@/stores/auth";
 import TransaksiService from "@/api/transaksi";
-import anime from "animejs"; // <-- Import animejs
+import SiswaService from "@/api/siswa";
+import IuranService from "@/api/iuran";
+import anime from "animejs";
+import {
+  TransitionRoot,
+  TransitionChild,
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/vue";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -280,6 +520,14 @@ import {
   CheckIcon,
   XMarkIcon,
   PhotoIcon,
+  PlusIcon,
+  UserIcon,
+  CurrencyDollarIcon,
+  CalendarDaysIcon,
+  BanknotesIcon,
+  CreditCardIcon,
+  ChatBubbleLeftIcon,
+  CheckCircleIcon,
 } from "@heroicons/vue/24/outline";
 import dayjs from "dayjs";
 
@@ -287,10 +535,47 @@ const authStore = useAuthStore();
 const transaksiList = ref([]);
 const loading = ref(false);
 
+// State buat Modal Input
+const siswaList = ref([]);
+const allIuranList = ref([]);
+const isInputModalOpen = ref(false);
+const inputting = ref(false);
+
+const inputForm = reactive({
+  siswa_id: "",
+  iuran_id: "",
+  tanggal_bayar: dayjs().format("YYYY-MM-DD"),
+  jumlah: 0,
+  metode: "cash",
+  status: "confirmed",
+  keterangan: "",
+});
+
+// Filter iuran berdasarkan kelas siswa yang dipilih, DAN yang belum dibayar/pending
+const filteredIuranList = computed(() => {
+  if (!inputForm.siswa_id) return [];
+  const siswa = siswaList.value.find((s) => s.id === inputForm.siswa_id);
+  if (!siswa) return [];
+
+  // Cek iuran apa aja yang udah dibayar / pending oleh siswa ini
+  const paidIuranIds = transaksiList.value
+    .filter(
+      (t) =>
+        t.siswa_id === inputForm.siswa_id &&
+        (t.status === "confirmed" || t.status === "pending"),
+    )
+    .map((t) => t.iuran_id);
+
+  // Tampilin iuran di kelasnya, KECUALI yang udah ada di paidIuranIds
+  return allIuranList.value.filter(
+    (i) => i.kelas_id === siswa.kelas_id && !paidIuranIds.includes(i.id),
+  );
+});
+
 const searchName = ref("");
 const filterStatus = ref("Semua");
 const currentPage = ref(1);
-const pageSize = 25; // <-- Diganti jadi 10 biar konsisten
+const pageSize = 25;
 
 // --- Anime.js Stagger Animation ---
 const triggerAnimations = () => {
@@ -335,12 +620,74 @@ const fetchTransaksi = async () => {
   }
 };
 
+const fetchSiswaForInput = async () => {
+  try {
+    const res = await SiswaService.getAll();
+    siswaList.value = res.data.data || [];
+  } catch (error) {
+    console.error("Gagal fetch siswa", error);
+  }
+};
+
+const fetchIuranForInput = async () => {
+  try {
+    const res = await IuranService.getAll();
+    allIuranList.value = res.data.data || [];
+  } catch (error) {
+    console.error("Gagal fetch iuran", error);
+  }
+};
+
+const onSiswaChange = () => {
+  inputForm.iuran_id = "";
+  inputForm.jumlah = 0;
+};
+
+const onIuranChange = () => {
+  const iuran = allIuranList.value.find((i) => i.id === inputForm.iuran_id);
+  if (iuran) {
+    inputForm.jumlah = iuran.nominal;
+  }
+};
+
+const openInputModal = () => {
+  Object.assign(inputForm, {
+    siswa_id: "",
+    iuran_id: "",
+    tanggal_bayar: dayjs().format("YYYY-MM-DD"),
+    jumlah: 0,
+    metode: "cash",
+    status: "confirmed",
+    keterangan: "",
+  });
+  isInputModalOpen.value = true;
+};
+
+const closeInputModal = () => {
+  isInputModalOpen.value = false;
+};
+
+const submitInput = async () => {
+  inputting.value = true;
+  try {
+    await TransaksiService.create(inputForm);
+    toast.success("Pembayaran berhasil diinput!");
+    closeInputModal();
+    fetchTransaksi(); // Refresh tabel
+  } catch (error) {
+    const msg = error.response?.data?.message || "Gagal input pembayaran";
+    toast.error(msg);
+  } finally {
+    inputting.value = false;
+  }
+};
+
 const formatRupiah = (angka) =>
   new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(
     angka || 0,
   );
 const onImgError = (e) => {
-  e.target.style.display = "none"; // Sembunyiin kalau link gambar rusak
+  e.target.style.display = "none";
 };
 const formatDate = (date) => (date ? dayjs(date).format("DD MMM YYYY") : "-");
 const getMonthName = (monthNum) => {
@@ -427,5 +774,9 @@ const confirmAction = (trx, newStatus) => {
 
 onMounted(() => {
   fetchTransaksi();
+  if (authStore.role === "guru" || authStore.role === "bendahara") {
+    fetchSiswaForInput();
+    fetchIuranForInput();
+  }
 });
 </script>
