@@ -66,7 +66,6 @@
               </span>
             </div>
           </div>
-          <!-- BUNGKUS CANVAS DI DIV INI BIAR GAK INFINITE LOOP -->
           <div class="relative h-75 w-full">
             <canvas ref="revenueChart"></canvas>
           </div>
@@ -105,10 +104,12 @@
         <!-- Top Tunggakan -->
         <div class="bottom-card bg-white border border-zinc-200 rounded-xl p-6">
           <h2 class="text-base font-semibold text-zinc-800 mb-1">Tunggakan Terbanyak</h2>
-          <p class="text-zinc-400 text-xs mb-2">Siswa yang belum bayar</p>
+          <p class="text-zinc-400 text-xs mb-2">Siswa telat bayar & punya denda</p>
           <div class="flex flex-col divide-y divide-zinc-100">
             <div v-for="telat in dashboardData.siswa_telat" :key="telat.id" class="flex items-center gap-3 py-3">
-              <div class="w-9 h-9 rounded-lg flex items-center justify-center bg-red-50 text-red-600 font-semibold text-xs shrink-0">
+              <!-- Avatar Profile -->
+              <img v-if="telat.siswa?.user?.foto" :src="telat.siswa.user.foto" class="w-9 h-9 rounded-full object-cover shrink-0 border border-zinc-100" alt="foto" />
+              <div v-else class="w-9 h-9 rounded-lg flex items-center justify-center bg-red-50 text-red-600 font-semibold text-xs shrink-0">
                 {{ telat.siswa?.user?.name?.charAt(0) || "?" }}
               </div>
               <div class="flex-1 min-w-0">
@@ -155,7 +156,9 @@
           <p class="text-zinc-400 text-xs mb-2">Aktivitas terakhir</p>
           <div class="flex flex-col divide-y divide-zinc-100">
             <div v-for="o in dashboardData.transaksi_terbaru" :key="o.id" class="flex items-center gap-3 py-3">
-              <div class="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-50 text-zinc-600 font-semibold text-xs shrink-0 border border-zinc-100">
+              <!-- Avatar Profile -->
+              <img v-if="o.siswa?.user?.foto" :src="o.siswa.user.foto" class="w-9 h-9 rounded-full object-cover shrink-0 border border-zinc-100" alt="foto" />
+              <div v-else class="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-50 text-zinc-600 font-semibold text-xs shrink-0 border border-zinc-100">
                 {{ o.siswa?.user?.name?.charAt(0) || "?" }}
               </div>
               <div class="flex-1 min-w-0">

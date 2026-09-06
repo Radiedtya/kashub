@@ -168,7 +168,10 @@
             :key="trx.id"
             class="flex items-center gap-3 py-3"
           >
+            <!-- Avatar Profile -->
+            <img v-if="trx.siswa?.user?.foto" :src="trx.siswa.user.foto" class="w-9 h-9 rounded-full object-cover shrink-0 border border-zinc-100" alt="foto" />
             <div
+              v-else
               class="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-50 text-zinc-600 font-semibold text-xs shrink-0 border border-zinc-100"
             >
               {{ trx.siswa?.user?.name?.charAt(0) || "?" }}
