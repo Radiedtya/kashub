@@ -81,8 +81,11 @@
           </div>
         </div>
 
-        <!-- Card Orang Tua -->
-        <div class="bg-white border border-zinc-200 rounded-xl p-6">
+        <!-- Card Orang Tua (Hanya Guru) -->
+        <div
+          v-if="authStore.role === 'guru'"
+          class="bg-white border border-zinc-200 rounded-xl p-6"
+        >
           <h3 class="text-sm font-semibold text-zinc-800 mb-3">
             Data Orang Tua
           </h3>
@@ -232,8 +235,10 @@ import SiswaService from "@/api/siswa";
 import TransaksiService from "@/api/transaksi";
 import KeterlambatanService from "@/api/keterlambatan";
 import { ChevronLeftIcon, UserIcon } from "@heroicons/vue/24/outline";
+import { useAuthStore } from "@/stores/auth";
 import dayjs from "dayjs";
 
+const authStore = useAuthStore();
 const route = useRoute();
 const siswaId = route.params.id;
 
