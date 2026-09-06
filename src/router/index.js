@@ -2,19 +2,26 @@ import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import AppLayout from "@/layouts/AppLayout.vue";
 
-import Login from "@/views/Login.vue";
-import Dashboard from "@/views/Dashboard.vue";
-import Profile from "@/views/Profile.vue";
-// Bikin file kosong dulu di folder src/views: Siswa.vue, Iuran.vue, Pengeluaran.vue, Laporan.vue
-// Isi cuma: <template><div>Halaman ...</div></template>
-import Siswa from "@/views/Siswa.vue";
-import Kelas from "@/views/Kelas.vue";
-import Iuran from "@/views/Iuran.vue";
-import Pengeluaran from "@/views/Pengeluaran.vue";
-import Notifikasi from "@/views/Notifikasi.vue";
-import Laporan from "@/views/Laporan.vue";
-import Keterlambatan from "@/views/Keterlambatan.vue";
-import Transaksi from "@/views/Transaksi.vue";
+// Auth
+import Login from "@/views/auth/Login.vue";
+
+// Dashboard Main
+import Dashboard from "@/views/dashboard/Dashboard.vue";
+
+// Master
+import Profile from "@/views/other/Profile.vue";
+import Siswa from "@/views/master/Siswa.vue";
+import Kelas from "@/views/master/Kelas.vue";
+import Iuran from "@/views/master/Iuran.vue";
+
+// Keuangan
+import Pengeluaran from "@/views/keuangan/Pengeluaran.vue";
+import Transaksi from "@/views/keuangan/Transaksi.vue";
+import Keterlambatan from "@/views/keuangan/Keterlambatan.vue";
+
+// Other
+import Notifikasi from "@/views/other/Notifikasi.vue";
+import Laporan from "@/views/other/Laporan.vue";
 
 const routes = [
   {
