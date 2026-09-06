@@ -47,6 +47,15 @@
         <HomeIcon class="w-5 h-5 shrink-0" />
         <span class="text-sm">Dashboard</span>
       </router-link>
+
+      <router-link
+        to="/notifikasi"
+        class="nav-link relative z-10 flex items-center gap-3 px-4 py-3 rounded-l-2xl transition-all duration-200 text-white/70 hover:bg-white/10 hover:text-white"
+        active-class="nav-active"
+      >
+        <BellIcon class="w-5 h-5 shrink-0" />
+        <span class="text-sm">Notifikasi</span>
+      </router-link>
     </nav>
 
     <!-- ==================== AKADEMIK ==================== -->
@@ -174,6 +183,7 @@ import {
   ArrowsRightLeftIcon,
   AcademicCapIcon,
   XMarkIcon,
+  BellIcon, // <-- Import BellIcon
 } from "@heroicons/vue/24/outline";
 
 defineProps({

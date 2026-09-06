@@ -17,9 +17,13 @@
         <h1 class="text-lg md:text-2xl font-bold text-slate-700 truncate">
           {{ currentTitle }}
         </h1>
-        <p class="text-slate-400 mt-1 text-xs md:text-base truncate hidden sm:block">
+        <p
+          class="text-slate-400 mt-1 text-xs md:text-base truncate hidden sm:block"
+        >
           Selamat datang kembali,
-          <span class="font-semibold text-black">{{ authStore.user?.name }}</span>
+          <span class="font-semibold text-black">{{
+            authStore.user?.name
+          }}</span>
         </p>
       </div>
     </div>
@@ -94,7 +98,7 @@
                   @click="handleClickNotif(notif)"
                   :class="[
                     active ? 'bg-gray-50' : '',
-                    'w-full text-left block px-4 py-3 text-sm text-gray-700 border-l-4',
+                    'w-full text-left flex items-start gap-3 px-4 py-3 text-sm text-gray-700 border-l-4',
                     notif.tipe === 'danger'
                       ? 'border-red-500'
                       : notif.tipe === 'warning'
@@ -104,13 +108,25 @@
                           : 'border-blue-500',
                   ]"
                 >
-                  <div class="flex flex-col">
-                    <span class="font-medium text-gray-800">{{
-                      notif.judul
-                    }}</span>
-                    <span class="text-xs text-gray-500 mt-0.5">{{
-                      notif.pesan
-                    }}</span>
+                  <!-- Avatar Pengirim -->
+                  <div 
+                    class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 overflow-hidden border border-gray-100"
+                    :class="!notif.sender ? getIconBg(notif.tipe) : 'bg-gray-100'"
+                  >
+                    <img v-if="notif.sender?.foto" :src="notif.sender.foto" class="w-full h-full object-cover" alt="foto" />
+                    <div v-else-if="notif.sender" class="w-full h-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold text-[10px]">
+                      {{ notif.sender?.name?.charAt(0) || 'S' }}
+                    </div>
+                    <BellIcon v-else class="w-4 h-4" :class="getIconColor(notif.tipe)" />
+                  </div>
+
+                  <!-- Konten Pesan -->
+                  <div class="flex flex-col min-w-0">
+                    <span class="font-medium text-gray-800 truncate">{{ notif.judul }}</span>
+                    <span class="text-xs text-gray-500 mt-0.5 line-clamp-2">{{ notif.pesan }}</span>
+                    <span v-if="notif.sender" class="text-[10px] text-zinc-400 mt-1">
+                      Dari: <span class="font-medium text-zinc-500">{{ notif.sender.name }}</span>
+                    </span>
                   </div>
                 </button>
               </MenuItem>
@@ -244,6 +260,20 @@ const handleClickNotif = async (notif) => {
   } catch (error) {
     console.error("Gagal mark as read", error);
   }
+};
+
+// Helper buat warna ikon notifikasi default (kalau gak ada sender)
+const getIconBg = (tipe) => {
+  if (tipe === 'danger') return 'bg-red-50';
+  if (tipe === 'warning') return 'bg-yellow-50';
+  if (tipe === 'success') return 'bg-emerald-50';
+  return 'bg-blue-50';
+};
+const getIconColor = (tipe) => {
+  if (tipe === 'danger') return 'text-red-500';
+  if (tipe === 'warning') return 'text-yellow-500';
+  if (tipe === 'success') return 'text-emerald-500';
+  return 'text-blue-500';
 };
 
 onMounted(() => {
