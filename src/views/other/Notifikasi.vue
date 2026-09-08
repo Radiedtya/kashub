@@ -277,7 +277,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useNotifikasiStore } from '@/stores/notifikasi';
 import NotifikasiService from '@/api/notifikasi';
 import KelasService from '@/api/kelas';
-import SiswaService from '@/api/siswa'; // <-- Import SiswaService
+import SiswaService from '@/api/siswa';
 import { 
   TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogTitle 
 } from '@headlessui/vue';
@@ -293,7 +293,7 @@ dayjs.extend(relativeTime);
 const authStore = useAuthStore();
 const notifikasiStore = useNotifikasiStore();
 const kelasList = ref([]);
-const siswaList = ref([]); // <-- Buat nyimpen list siswa
+const siswaList = ref([]);
 
 // Modal & Form State
 const isSendModalOpen = ref(false);

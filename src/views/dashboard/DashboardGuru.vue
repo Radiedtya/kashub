@@ -123,7 +123,7 @@
                 <p class="text-zinc-400 text-[10px] mt-0.5">Telat {{ telat.hari_telat }} hari</p>
               </div>
             </div>
-            <p v-if="dashboardData.siswa_telat.length === 0" class="text-center text-zinc-400 text-sm py-8">Tidak ada tunggakan 🎉</p>
+            <p v-if="dashboardData.siswa_telat.length === 0" class="text-center text-zinc-400 text-sm py-8">Tidak ada tunggakan tersedia</p>
           </div>
         </div>
 

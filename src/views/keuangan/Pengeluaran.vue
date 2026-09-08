@@ -20,15 +20,63 @@
       </button>
     </div>
 
+    <!-- Chart Card -->
+    <div
+      class="pengeluaran-chart-card bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6"
+    >
+      <div class="relative w-40 h-40 shrink-0">
+        <canvas ref="statusChart"></canvas>
+        <div
+          class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+        >
+          <span class="text-xl font-bold text-zinc-900">{{
+            pengeluaranList.length
+          }}</span>
+          <span class="text-zinc-400 text-[10px] uppercase tracking-wide"
+            >Total Pengajuan</span
+          >
+        </div>
+      </div>
+      <div class="flex-1 w-full grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
+          <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+          <div class="flex-1">
+            <p class="text-xs text-zinc-500">Disetujui</p>
+            <p class="text-lg font-bold text-zinc-800">
+              {{ statusData.approved }}
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
+          <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+          <div class="flex-1">
+            <p class="text-xs text-zinc-500">Pending</p>
+            <p class="text-lg font-bold text-zinc-800">
+              {{ statusData.pending }}
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
+          <span class="w-3 h-3 rounded-full bg-red-500"></span>
+          <div class="flex-1">
+            <p class="text-xs text-zinc-500">Ditolak</p>
+            <p class="text-lg font-bold text-zinc-800">
+              {{ statusData.rejected }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Card Tabel -->
     <div
-      class="pengeluaran-card bg-white border border-zinc-200 rounded-xl overflow-hidden"
+      class="pengeluaran-card bg-white border border-zinc-200 rounded-xl overflow-hidden p-5"
     >
-      <!-- Filter Row -->
+      <!-- Filter Row (Diubah biar search-nya flex-1) -->
       <div
-        class="flex flex-col md:flex-row items-stretch md:items-center gap-3 px-6 py-4 border-b border-zinc-100 bg-zinc-50/50"
+        class="flex flex-col md:flex-row items-stretch md:items-center gap-3 p-4 border-b border-zinc-100 bg-zinc-50/50"
       >
-        <div class="relative w-full md:w-64">
+        <div class="relative flex-1 w-full">
           <MagnifyingGlassIcon
             class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
           />
@@ -56,15 +104,7 @@
         <div class="min-w-full">
           <div
             class="grid items-center px-6 py-3 text-zinc-500 text-xs font-semibold uppercase tracking-wider border-b border-zinc-100 bg-white"
-            style="
-              grid-template-columns: 60px minmax(150px, 1.5fr) minmax(
-                  120px,
-                  1fr
-                ) minmax(100px, 1fr) minmax(80px, 1fr) 80px minmax(
-                  120px,
-                  1fr
-                ) minmax(100px, 1fr) 150px;
-            "
+            :style="{ gridTemplateColumns: gridTemplate }"
           >
             <div class="text-center">No</div>
             <div>Judul & Deskripsi</div>
@@ -74,7 +114,7 @@
             <div class="text-center">Bukti</div>
             <div>Status</div>
             <div>Disetujui Oleh</div>
-            <div class="text-right">Aksi</div>
+            <div class="text-center">Aksi</div>
           </div>
 
           <div
@@ -95,21 +135,13 @@
               v-for="(p, index) in pagedPengeluaran"
               :key="p.id"
               class="pengeluaran-row grid items-center px-6 py-4 border-b border-zinc-50 last:border-0 hover:bg-zinc-50 transition-colors text-sm"
-              style="
-                grid-template-columns: 60px minmax(150px, 1.5fr) minmax(
-                    120px,
-                    1fr
-                  ) minmax(100px, 1fr) minmax(80px, 1fr) 80px minmax(
-                    120px,
-                    1fr
-                  ) minmax(100px, 1fr) 150px;
-              "
+              :style="{ gridTemplateColumns: gridTemplate }"
             >
               <div class="text-center text-zinc-400 font-medium">
                 {{ (currentPage - 1) * pageSize + index + 1 }}
               </div>
 
-              <div class="pr-4 min-w-37.5">
+              <div class="pr-4 min-w-50">
                 <span class="font-semibold text-zinc-800 capitalize">{{
                   p.judul || "Tanpa Judul"
                 }}</span>
@@ -118,30 +150,48 @@
                 >
               </div>
 
-              <div
-                class="pr-4 text-zinc-600 text-xs min-w-30 flex flex-col gap-1"
-              >
-                <span class="font-medium text-zinc-700">{{
-                  p.created_by?.name || p.createdBy?.name || "-"
-                }}</span>
-                <span
-                  v-if="p.created_by?.role?.name || p.createdBy?.role?.name"
-                  class="inline-flex w-fit items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-zinc-100 text-zinc-600 capitalize"
-                >
-                  {{ p.created_by?.role?.name || p.createdBy?.role?.name }}
-                </span>
+              <!-- Diajukan Oleh (Avatar + Role) -->
+              <div class="pr-4 min-w-45">
+                <div class="flex items-center gap-3">
+                  <img
+                    v-if="p.created_by?.foto || p.createdBy?.foto"
+                    :src="p.created_by?.foto || p.createdBy?.foto"
+                    class="w-8 h-8 rounded-full object-cover shrink-0 border border-zinc-100"
+                    alt="foto"
+                  />
+                  <div
+                    v-else
+                    class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold text-xs shrink-0"
+                  >
+                    {{
+                      (p.created_by?.name || p.createdBy?.name)?.charAt(0) ||
+                      "?"
+                    }}
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <span class="font-medium text-zinc-700 text-xs">{{
+                      p.created_by?.name || p.createdBy?.name || "-"
+                    }}</span>
+                    <span
+                      v-if="p.created_by?.role?.name || p.createdBy?.role?.name"
+                      class="inline-flex w-fit items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-zinc-100 text-zinc-600 capitalize"
+                    >
+                      {{ p.created_by?.role?.name || p.createdBy?.role?.name }}
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              <div class="pr-4 text-zinc-500 text-xs min-w-25">
+              <div class="pr-4 text-zinc-500 text-xs min-w-27.5">
                 {{ formatDate(p.tanggal) }}
               </div>
 
-              <div class="pr-4 font-semibold text-zinc-700 min-w-20">
+              <div class="pr-4 font-semibold text-zinc-700 min-w-30">
                 Rp {{ formatRupiah(p.jumlah) }}
               </div>
 
-              <!-- Preview Thumbnail di Tabel -->
-              <div class="pr-4 text-center min-w-20">
+              <!-- Bukti Bayar -->
+              <div class="pr-4 text-center min-w-20 flex justify-center">
                 <a
                   v-if="p.bukti_foto"
                   :href="p.bukti_foto"
@@ -150,6 +200,7 @@
                 >
                   <img
                     :src="p.bukti_foto"
+                    @error="onImgError"
                     class="w-10 h-10 rounded-md object-cover border border-zinc-200 mx-auto hover:opacity-80 transition"
                     alt="bukti"
                   />
@@ -157,7 +208,7 @@
                 <PhotoIcon v-else class="w-5 h-5 text-zinc-300 mx-auto" />
               </div>
 
-              <div class="pr-4 min-w-30">
+              <div class="pr-4 min-w-25">
                 <span
                   class="px-2 py-1 text-xs rounded font-medium capitalize"
                   :class="getStatusClass(p.status)"
@@ -166,20 +217,47 @@
                 </span>
               </div>
 
-              <div class="pr-4 text-zinc-600 text-xs min-w-25">
-                <span v-if="p.approved_by?.name">
-                  {{ p.approved_by.name }}
-                </span>
-                <span v-else-if="p.approvedBy?.name">
-                  {{ p.approvedBy.name }}
-                </span>
-                <span v-else-if="p.approved_by" class="text-zinc-500">
-                  ID: {{ p.approved_by }}
-                </span>
-                <span v-else class="text-zinc-300">-</span>
+              <!-- Disetujui Oleh (Avatar + Role) -->
+              <div class="pr-4 min-w-37.5">
+                <div
+                  v-if="p.approved_by?.name || p.approvedBy?.name"
+                  class="flex items-center gap-3"
+                >
+                  <img
+                    v-if="p.approved_by?.foto || p.approvedBy?.foto"
+                    :src="p.approved_by?.foto || p.approvedBy?.foto"
+                    class="w-8 h-8 rounded-full object-cover shrink-0 border border-zinc-100"
+                    alt="foto"
+                  />
+                  <div
+                    v-else
+                    class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-semibold text-xs shrink-0"
+                  >
+                    {{
+                      (p.approved_by?.name || p.approvedBy?.name)?.charAt(0) ||
+                      "?"
+                    }}
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <span class="font-medium text-zinc-700 text-xs">{{
+                      p.approved_by?.name || p.approvedBy?.name
+                    }}</span>
+                    <span
+                      v-if="
+                        p.approved_by?.role?.name || p.approvedBy?.role?.name
+                      "
+                      class="inline-flex w-fit items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-zinc-100 text-zinc-600 capitalize"
+                    >
+                      {{
+                        p.approved_by?.role?.name || p.approvedBy?.role?.name
+                      }}
+                    </span>
+                  </div>
+                </div>
+                <span v-else class="text-zinc-300 text-xs">-</span>
               </div>
 
-              <div class="flex items-center justify-end gap-1 min-w-37.5">
+              <div class="flex items-center justify-end gap-2 min-w-45">
                 <template
                   v-if="p.status === 'pending' && authStore.role === 'guru'"
                 >
@@ -470,6 +548,7 @@ import { useAuthStore } from "@/stores/auth";
 import PengeluaranService from "@/api/pengeluaran";
 import KelasService from "@/api/kelas";
 import anime from "animejs";
+import { Chart, registerables } from "chart.js";
 import {
   TransitionRoot,
   TransitionChild,
@@ -495,6 +574,8 @@ import {
 } from "@heroicons/vue/24/outline";
 import dayjs from "dayjs";
 
+Chart.register(...registerables);
+
 const authStore = useAuthStore();
 const pengeluaranList = ref([]);
 const kelasList = ref([]);
@@ -505,6 +586,15 @@ const searchName = ref("");
 const filterStatus = ref("Semua");
 const currentPage = ref(1);
 const pageSize = 10;
+
+// Chart State
+const statusChart = ref(null);
+let chartInstance = null;
+
+// Dynamic Grid Template
+const gridTemplate = computed(() => {
+  return "60px minmax(250px, 1.5fr) minmax(200px, 1fr) minmax(120px, 1fr) minmax(130px, 1fr) 80px minmax(110px, 1fr) minmax(180px, 1fr) minmax(180px, 1fr)";
+});
 
 // Modal State
 const isModalOpen = ref(false);
@@ -528,6 +618,15 @@ const triggerAnimations = () => {
   });
 
   anime({
+    targets: ".pengeluaran-chart-card",
+    translateY: [20, 0],
+    opacity: [0, 1],
+    delay: 100,
+    duration: 600,
+    easing: "easeOutQuad",
+  });
+
+  anime({
     targets: ".pengeluaran-row",
     translateY: [10, 0],
     opacity: [0, 1],
@@ -546,6 +645,7 @@ const fetchPengeluaran = async () => {
     loading.value = false;
     await nextTick();
     triggerAnimations();
+    renderChart();
   } catch (error) {
     toast.error("Gagal memuat data pengeluaran");
     loading.value = false;
@@ -577,8 +677,27 @@ const getStatusClass = (status) => {
   return "bg-zinc-50 text-zinc-600";
 };
 
+// Computed buat Chart Data
+const statusData = computed(() => {
+  let approved = 0,
+    pending = 0,
+    rejected = 0;
+  pengeluaranList.value.forEach((p) => {
+    if (p.status === "approved") approved++;
+    else if (p.status === "pending") pending++;
+    else if (p.status === "rejected") rejected++;
+  });
+  return { approved, pending, rejected };
+});
+
 const filteredPengeluaran = computed(() => {
   let list = pengeluaranList.value;
+
+  // FIX: Kalau yang login Guru, filter cuma pengeluaran di kelasnya
+  if (authStore.role === "guru" && authStore.user?.kelas_id) {
+    list = list.filter((p) => p.kelas_id === authStore.user.kelas_id);
+  }
+
   if (searchName.value) {
     const search = searchName.value.toLowerCase();
     list = list.filter(
@@ -609,6 +728,36 @@ const rangeStart = computed(() =>
 const rangeEnd = computed(() =>
   Math.min(currentPage.value * pageSize, filteredPengeluaran.value.length),
 );
+
+// --- Render Chart ---
+const renderChart = () => {
+  if (chartInstance) chartInstance.destroy();
+
+  if (statusChart.value) {
+    chartInstance = new Chart(statusChart.value, {
+      type: "doughnut",
+      data: {
+        labels: ["Disetujui", "Pending", "Ditolak"],
+        datasets: [
+          {
+            data: [
+              statusData.value.approved,
+              statusData.value.pending,
+              statusData.value.rejected,
+            ],
+            backgroundColor: ["#10b981", "#f59e0b", "#ef4444"],
+            borderWidth: 0,
+            hoverOffset: 4,
+          },
+        ],
+      },
+      options: {
+        cutout: "70%",
+        plugins: { legend: { display: false }, tooltip: { enabled: true } },
+      },
+    });
+  }
+};
 
 // --- CRUD Functions ---
 const openCreateModal = () => {

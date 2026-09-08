@@ -20,16 +20,65 @@
       </button>
     </div>
 
+    <!-- Chart Card -->
+    <div
+      class="transaksi-chart-card bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6"
+    >
+      <div class="relative w-40 h-40 shrink-0">
+        <canvas ref="statusChart"></canvas>
+        <div
+          class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+        >
+          <span class="text-xl font-bold text-zinc-900">{{
+            transaksiList.length
+          }}</span>
+          <span class="text-zinc-400 text-[10px] uppercase tracking-wide"
+            >Total Transaksi</span
+          >
+        </div>
+      </div>
+      <div class="flex-1 w-full grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
+          <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+          <div class="flex-1">
+            <p class="text-xs text-zinc-500">Lunas</p>
+            <p class="text-lg font-bold text-zinc-800">
+              {{ statusData.confirmed }}
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
+          <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+          <div class="flex-1">
+            <p class="text-xs text-zinc-500">Pending</p>
+            <p class="text-lg font-bold text-zinc-800">
+              {{ statusData.pending }}
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
+          <span class="w-3 h-3 rounded-full bg-red-500"></span>
+          <div class="flex-1">
+            <p class="text-xs text-zinc-500">Ditolak</p>
+            <p class="text-lg font-bold text-zinc-800">
+              {{ statusData.rejected }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Card Tabel -->
     <div
-      class="transaksi-card bg-white border border-zinc-200 rounded-xl overflow-hidden px-8 py-3"
+      class="transaksi-card bg-white border border-zinc-200 rounded-xl overflow-hidden"
     >
-      <!-- Filter Row (Hanya Guru & Bendahara) -->
+      <!-- Filter Row (Diubah biar search-nya flex-1 / ngisi full) -->
       <div
         v-if="authStore.role === 'guru' || authStore.role === 'bendahara'"
-        class="flex flex-col md:flex-row items-stretch md:items-center gap-3 px-6 py-4 border-b border-zinc-100 bg-zinc-50/50"
+        class="flex flex-col md:flex-row items-stretch md:items-center gap-3 p-4 border-b border-zinc-100 bg-zinc-50/50"
       >
-        <div class="relative w-full md:w-64">
+        <!-- Search (Diubah jadi flex-1) -->
+        <div class="relative flex-1 w-full">
           <MagnifyingGlassIcon
             class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
           />
@@ -58,13 +107,7 @@
           <!-- Header Row -->
           <div
             class="grid items-center px-6 py-3 text-zinc-500 text-xs font-semibold uppercase tracking-wider border-b border-zinc-100 bg-white"
-            style="
-              grid-template-columns:
-                60px minmax(150px, 1.5fr) minmax(100px, 1fr)
-                minmax(120px, 1fr) minmax(100px, 1fr) minmax(80px, 1fr)
-                80px minmax(150px, 1.5fr) minmax(80px, 1fr) minmax(120px, 1fr)
-                150px;
-            "
+            :style="{ gridTemplateColumns: gridTemplate }"
           >
             <div class="text-center">No</div>
             <div class="text-center">Siswa</div>
@@ -98,13 +141,7 @@
               v-for="(trx, index) in pagedTransaksi"
               :key="trx.id"
               class="transaksi-row grid items-center px-6 py-4 border-b border-zinc-50 last:border-0 hover:bg-zinc-50 transition-colors text-sm"
-              style="
-                grid-template-columns:
-                  60px minmax(150px, 1.5fr) minmax(100px, 1fr)
-                  minmax(120px, 1fr) minmax(100px, 1fr) minmax(80px, 1fr)
-                  80px minmax(150px, 1.5fr) minmax(80px, 1fr) minmax(120px, 1fr)
-                  150px;
-              "
+              :style="{ gridTemplateColumns: gridTemplate }"
             >
               <!-- No -->
               <div class="text-center text-zinc-400 font-medium">
@@ -112,7 +149,7 @@
               </div>
 
               <!-- Siswa + Foto Profil -->
-              <div class="flex items-center gap-3 pr-4 min-w-37.5">
+              <div class="flex items-center gap-3 pr-4 min-w-45">
                 <img
                   v-if="trx.siswa?.user?.foto"
                   :src="trx.siswa.user.foto"
@@ -136,7 +173,7 @@
               </div>
 
               <!-- Iuran -->
-              <div class="pr-4 text-zinc-600 text-xs min-w-25">
+              <div class="pr-4 text-zinc-600 text-xs min-w-30">
                 {{
                   trx.iuran
                     ? `${getMonthName(trx.iuran.bulan)} ${trx.iuran.tahun}`
@@ -145,17 +182,17 @@
               </div>
 
               <!-- Tgl Bayar -->
-              <div class="pr-4 text-zinc-500 text-xs min-w-30">
+              <div class="pr-4 text-zinc-500 text-xs min-w-27.5">
                 {{ formatDate(trx.tanggal_bayar) || "-" }}
               </div>
 
               <!-- Jumlah -->
-              <div class="pr-4 font-semibold text-zinc-700 min-w-25">
+              <div class="pr-4 font-semibold text-zinc-700 min-w-30">
                 Rp {{ formatRupiah(trx.jumlah) }}
               </div>
 
               <!-- Metode Bayar -->
-              <div class="pr-4 text-zinc-500 text-xs min-w-20 capitalize">
+              <div class="pr-4 text-zinc-500 text-xs min-w-22.5 capitalize">
                 {{ trx.metode || "-" }}
               </div>
 
@@ -186,7 +223,7 @@
               </div>
 
               <!-- Status -->
-              <div class="pr-4 min-w-20">
+              <div class="pr-4 min-w-25">
                 <span
                   class="px-2 py-1 text-xs rounded font-medium capitalize"
                   :class="getStatusClass(trx.status)"
@@ -196,7 +233,7 @@
               </div>
 
               <!-- Tgl Dikonfirmasi -->
-              <div class="pr-4 text-zinc-500 text-xs text-center min-w-30">
+              <div class="pr-4 text-zinc-500 text-xs text-center min-w-27.5">
                 {{ formatDate(trx.confirmed_at) || "-" }}
               </div>
 
@@ -506,6 +543,7 @@ import TransaksiService from "@/api/transaksi";
 import SiswaService from "@/api/siswa";
 import IuranService from "@/api/iuran";
 import anime from "animejs";
+import { Chart, registerables } from "chart.js";
 import {
   TransitionRoot,
   TransitionChild,
@@ -530,6 +568,8 @@ import {
   CheckCircleIcon,
 } from "@heroicons/vue/24/outline";
 import dayjs from "dayjs";
+
+Chart.register(...registerables);
 
 const authStore = useAuthStore();
 const transaksiList = ref([]);
@@ -557,7 +597,6 @@ const filteredIuranList = computed(() => {
   const siswa = siswaList.value.find((s) => s.id === inputForm.siswa_id);
   if (!siswa) return [];
 
-  // Cek iuran apa aja yang udah dibayar / pending oleh siswa ini
   const paidIuranIds = transaksiList.value
     .filter(
       (t) =>
@@ -566,7 +605,6 @@ const filteredIuranList = computed(() => {
     )
     .map((t) => t.iuran_id);
 
-  // Tampilin iuran di kelasnya, KECUALI yang udah ada di paidIuranIds
   return allIuranList.value.filter(
     (i) => i.kelas_id === siswa.kelas_id && !paidIuranIds.includes(i.id),
   );
@@ -577,12 +615,42 @@ const filterStatus = ref("Semua");
 const currentPage = ref(1);
 const pageSize = 25;
 
+// Chart State & Computed
+const statusChart = ref(null);
+let doughnutChartInstance = null;
+
+const statusData = computed(() => {
+  let confirmed = 0,
+    pending = 0,
+    rejected = 0;
+  transaksiList.value.forEach((t) => {
+    if (t.status === "confirmed") confirmed++;
+    else if (t.status === "pending") pending++;
+    else if (t.status === "rejected") rejected++;
+  });
+  return { confirmed, pending, rejected };
+});
+
+// Dynamic Grid Template
+const gridTemplate = computed(() => {
+  return "60px minmax(180px, 1.5fr) minmax(120px, 1fr) minmax(110px, 1fr) minmax(120px, 1fr) minmax(90px, 1fr) 80px minmax(150px, 1.5fr) minmax(100px, 1fr) minmax(110px, 1fr) minmax(150px, 1fr)";
+});
+
 // --- Anime.js Stagger Animation ---
 const triggerAnimations = () => {
   anime({
     targets: ".transaksi-card",
     translateY: [20, 0],
     opacity: [0, 1],
+    duration: 600,
+    easing: "easeOutQuad",
+  });
+
+  anime({
+    targets: ".transaksi-chart-card",
+    translateY: [20, 0],
+    opacity: [0, 1],
+    delay: 100,
     duration: 600,
     easing: "easeOutQuad",
   });
@@ -601,12 +669,10 @@ const fetchTransaksi = async () => {
   loading.value = true;
   try {
     let response;
-    // Kalau Siswa, pake endpoint khusus
     if (authStore.role === "siswa") {
       response = await TransaksiService.getMyTransaksi();
       transaksiList.value = response.data.data.transaksi || [];
     } else {
-      // Kalau Guru/Bendahara, pake endpoint all
       response = await TransaksiService.getAll();
       transaksiList.value = response.data.data || [];
     }
@@ -614,6 +680,7 @@ const fetchTransaksi = async () => {
     loading.value = false;
     await nextTick();
     triggerAnimations();
+    renderChart();
   } catch (error) {
     toast.error("Gagal memuat data transaksi");
     loading.value = false;
@@ -673,7 +740,7 @@ const submitInput = async () => {
     await TransaksiService.create(inputForm);
     toast.success("Pembayaran berhasil diinput!");
     closeInputModal();
-    fetchTransaksi(); // Refresh tabel
+    fetchTransaksi();
   } catch (error) {
     const msg = error.response?.data?.message || "Gagal input pembayaran";
     toast.error(msg);
@@ -717,6 +784,12 @@ const getStatusClass = (status) => {
 
 const filteredTransaksi = computed(() => {
   let list = transaksiList.value;
+
+  // FIX: Kalau yang login Guru, filter cuma transaksi siswa di kelasnya
+  if (authStore.role === "guru" && authStore.user?.kelas_id) {
+    list = list.filter((t) => t.siswa?.kelas_id === authStore.user.kelas_id);
+  }
+
   if (searchName.value) {
     list = list.filter((t) =>
       t.siswa?.user?.name
@@ -770,6 +843,36 @@ const confirmAction = (trx, newStatus) => {
       }
     }
   });
+};
+
+// --- Render Chart ---
+const renderChart = () => {
+  if (doughnutChartInstance) doughnutChartInstance.destroy();
+
+  if (statusChart.value) {
+    doughnutChartInstance = new Chart(statusChart.value, {
+      type: "doughnut",
+      data: {
+        labels: ["Lunas", "Pending", "Ditolak"],
+        datasets: [
+          {
+            data: [
+              statusData.value.confirmed,
+              statusData.value.pending,
+              statusData.value.rejected,
+            ],
+            backgroundColor: ["#10b981", "#f59e0b", "#ef4444"],
+            borderWidth: 0,
+            hoverOffset: 4,
+          },
+        ],
+      },
+      options: {
+        cutout: "70%",
+        plugins: { legend: { display: false }, tooltip: { enabled: true } },
+      },
+    });
+  }
 };
 
 onMounted(() => {

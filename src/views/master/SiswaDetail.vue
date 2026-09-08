@@ -196,7 +196,10 @@
             v-if="keterlambatanList.length === 0"
             class="text-center py-6 text-zinc-400 text-sm"
           >
-            Tidak ada riwayat keterlambatan. 🎉
+            Tidak ada riwayat keterlambatan untuk
+            <span class="font-bold">
+              {{ siswaData.user?.name }}
+            </span>
           </div>
 
           <div v-else class="overflow-x-auto">

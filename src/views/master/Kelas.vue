@@ -9,14 +9,45 @@
           {{ filteredKelas.length }} kelas terdaftar
         </p>
       </div>
-      <button
-        v-if="authStore.role === 'guru'"
-        @click="openCreateModal"
-        class="bg-zinc-900 text-white px-4 py-2.5 rounded-lg font-semibold text-sm hover:bg-zinc-800 transition flex items-center gap-2 w-full sm:w-auto justify-center"
-      >
-        <PlusIcon class="w-4 h-4" />
-        Tambah Kelas
-      </button>
+    </div>
+
+    <!-- Chart Card -->
+    <div
+      class="kelas-chart-card bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6"
+    >
+      <div class="relative w-40 h-40 shrink-0">
+        <canvas ref="kelasChart"></canvas>
+        <div
+          class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+        >
+          <span class="text-xl font-bold text-zinc-900">{{
+            kelasList.length
+          }}</span>
+          <span class="text-zinc-400 text-[10px] uppercase tracking-wide"
+            >Total Kelas</span
+          >
+        </div>
+      </div>
+      <div class="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
+          <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+          <div class="flex-1">
+            <p class="text-xs text-zinc-500">Kelas Aktif</p>
+            <p class="text-lg font-bold text-zinc-800">
+              {{ chartData.data[0] }}
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
+          <span class="w-3 h-3 rounded-full bg-zinc-400"></span>
+          <div class="flex-1">
+            <p class="text-xs text-zinc-500">Kelas Nonaktif</p>
+            <p class="text-lg font-bold text-zinc-800">
+              {{ chartData.data[1] }}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Card Tabel -->
@@ -25,9 +56,10 @@
     >
       <!-- Filter Row -->
       <div
-        class="flex flex-col md:flex-row items-stretch md:items-center gap-3 px-6 py-4 border-b border-zinc-100 bg-zinc-50/50"
+        class="flex flex-col md:flex-row items-stretch md:items-center gap-3 p-4 border-b border-zinc-100 bg-zinc-50/50"
       >
-        <div class="relative w-full md:w-64">
+        <!-- Search (Flex-1) -->
+        <div class="relative flex-1 w-full">
           <MagnifyingGlassIcon
             class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
           />
@@ -55,14 +87,13 @@
           <!-- Header Row -->
           <div
             class="grid items-center px-6 py-3 text-zinc-500 text-xs font-semibold uppercase tracking-wider border-b border-zinc-100 bg-white"
-            style="grid-template-columns: 60px 1.5fr 1fr 1.5fr 1fr 100px"
+            style="grid-template-columns: 60px 1.5fr 1fr 1.5fr 1fr"
           >
             <div class="text-center">No</div>
             <div>Nama Kelas</div>
             <div>Tahun Ajaran</div>
             <div>Wali Kelas</div>
             <div>Status</div>
-            <div class="text-right">Aksi</div>
           </div>
 
           <!-- States & Rows -->
@@ -84,13 +115,13 @@
               v-for="(k, index) in pagedKelas"
               :key="k.id"
               class="kelas-row grid items-center px-6 py-4 border-b border-zinc-50 last:border-0 hover:bg-zinc-50 transition-colors text-sm"
-              style="grid-template-columns: 60px 1.5fr 1fr 1.5fr 1fr 100px"
+              style="grid-template-columns: 60px 1.5fr 1fr 1.5fr 1fr"
             >
               <div class="text-center text-zinc-400 font-medium">
                 {{ (currentPage - 1) * pageSize + index + 1 }}
               </div>
 
-              <div class="pr-4 min-w-37.5">
+              <div class="pr-4 min-w-45">
                 <span class="font-semibold text-zinc-800">{{
                   k.nama || "-"
                 }}</span>
@@ -100,11 +131,25 @@
                 {{ k.tahun_ajaran || "-" }}
               </div>
 
-              <div class="pr-4 text-zinc-600 text-xs min-w-37.5">
-                {{ k.wali_kelas?.name || "-" }}
+              <div class="flex items-center gap-3 pr-4 min-w-45">
+                <img
+                  v-if="k.wali_kelas?.foto"
+                  :src="k.wali_kelas.foto"
+                  class="w-8 h-8 rounded-full object-cover shrink-0 border border-zinc-100"
+                  alt="foto wali kelas"
+                />
+                <div
+                  v-else
+                  class="w-8 h-8 rounded-full bg-zinc-100 text-zinc-500 flex items-center justify-center font-semibold text-xs shrink-0"
+                >
+                  {{ k.wali_kelas?.name?.charAt(0) || "?" }}
+                </div>
+                <span class="text-zinc-600 text-xs">{{
+                  k.wali_kelas?.name || "-"
+                }}</span>
               </div>
 
-              <div class="pr-4 min-w-20">
+              <div class="pr-4 min-w-25">
                 <span
                   class="flex items-center gap-1.5 text-xs font-medium"
                   :class="k.is_active ? 'text-emerald-600' : 'text-zinc-400'"
@@ -115,24 +160,6 @@
                   ></span>
                   {{ k.is_active ? "Aktif" : "Nonaktif" }}
                 </span>
-              </div>
-
-              <div class="flex items-center justify-end gap-1 min-w-25">
-                <template v-if="authStore.role === 'guru'">
-                  <button
-                    @click="openEditModal(k)"
-                    class="w-8 h-8 flex items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-100 transition"
-                  >
-                    <PencilSquareIcon class="w-4 h-4" />
-                  </button>
-                  <button
-                    @click="confirmDelete(k)"
-                    class="w-8 h-8 flex items-center justify-center rounded-md text-red-500 hover:bg-red-50 transition"
-                  >
-                    <TrashIcon class="w-4 h-4" />
-                  </button>
-                </template>
-                <span v-else class="text-xs text-zinc-300 italic">-</span>
               </div>
             </div>
           </div>
@@ -177,200 +204,36 @@
         </div>
       </div>
     </div>
-
-    <!-- Modal Form (Create/Edit) -->
-    <TransitionRoot appear :show="isModalOpen" as="template">
-      <Dialog as="div" @close="closeModal" class="relative z-50">
-        <TransitionChild
-          as="template"
-          enter="duration-300 ease-out"
-          enter-from="opacity-0"
-          enter-to="opacity-100"
-          leave="duration-200 ease-in"
-          leave-from="opacity-100"
-          leave-to="opacity-0"
-        >
-          <div class="fixed inset-0 bg-zinc-900/50 backdrop-blur-sm" />
-        </TransitionChild>
-
-        <div class="fixed inset-0 overflow-y-auto">
-          <div class="flex min-h-full items-center justify-center p-4">
-            <TransitionChild
-              as="template"
-              enter="duration-300 ease-out"
-              enter-from="opacity-0 scale-95"
-              enter-to="opacity-100 scale-100"
-              leave="duration-200 ease-in"
-              leave-from="opacity-100 scale-100"
-              leave-to="opacity-0 scale-95"
-            >
-              <DialogPanel
-                class="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all"
-              >
-                <div
-                  class="px-6 py-4 border-b border-zinc-100 flex justify-between items-center"
-                >
-                  <DialogTitle as="h3" class="text-lg font-bold text-zinc-800">
-                    {{ isEditMode ? "Edit Data Kelas" : "Tambah Kelas Baru" }}
-                  </DialogTitle>
-                  <button
-                    @click="closeModal"
-                    class="text-zinc-400 hover:text-zinc-600"
-                  >
-                    <XMarkIcon class="w-5 h-5" />
-                  </button>
-                </div>
-
-                <form
-                  @submit.prevent="submitForm"
-                  class="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 max-h-[70vh] overflow-y-auto"
-                >
-                  <div class="md:col-span-2">
-                    <label class="text-xs text-zinc-600 font-medium"
-                      >Nama Kelas</label
-                    >
-                    <div class="relative mt-1">
-                      <AcademicCapIcon
-                        class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
-                      />
-                      <input
-                        v-model="form.nama"
-                        type="text"
-                        required
-                        class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none"
-                        placeholder="Contoh: XII RPL 1"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label class="text-xs text-zinc-600 font-medium"
-                      >Tahun Ajaran</label
-                    >
-                    <div class="relative mt-1">
-                      <CalendarDaysIcon
-                        class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2"
-                      />
-                      <input
-                        v-model="form.tahun_ajaran"
-                        type="text"
-                        required
-                        class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none"
-                        placeholder="Contoh: 2024/2025"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label class="text-xs text-zinc-600 font-medium"
-                      >Wali Kelas</label
-                    >
-                    <div class="relative mt-1">
-                      <UserIcon
-                        class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
-                      />
-                      <select
-                        v-model="form.wali_kelas_id"
-                        class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none bg-white appearance-none"
-                      >
-                        <option value="">Tidak Ada</option>
-                        <option v-for="u in guruList" :key="u.id" :value="u.id">
-                          {{ u.name }}
-                        </option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div class="md:col-span-2 flex items-center gap-2 mt-2">
-                    <input
-                      v-model="form.is_active"
-                      type="checkbox"
-                      id="is_active_kelas"
-                      class="w-4 h-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900"
-                    />
-                    <label
-                      for="is_active_kelas"
-                      class="text-sm text-zinc-600 font-medium"
-                      >Status Aktif (Kelas sedang berjalan)</label
-                    >
-                  </div>
-                </form>
-
-                <div
-                  class="px-6 py-4 bg-zinc-50 border-t border-zinc-100 flex justify-end gap-3"
-                >
-                  <button
-                    type="button"
-                    @click="closeModal"
-                    class="px-4 py-2 rounded-lg bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-100 text-sm font-medium transition"
-                  >
-                    Batal
-                  </button>
-                  <button
-                    @click="submitForm"
-                    :disabled="submitting"
-                    class="px-4 py-2 rounded-lg bg-zinc-900 text-white hover:bg-zinc-800 text-sm font-medium transition disabled:opacity-50"
-                  >
-                    {{ submitting ? "Menyimpan..." : "Simpan Data" }}
-                  </button>
-                </div>
-              </DialogPanel>
-            </TransitionChild>
-          </div>
-        </div>
-      </Dialog>
-    </TransitionRoot>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive, nextTick } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 import { toast } from "vue3-toastify";
-import Swal from "sweetalert2";
 import { useAuthStore } from "@/stores/auth";
 import KelasService from "@/api/kelas";
-import UserService from "@/api/user"; // Kita butuh list Guru buat dropdown wali kelas
 import anime from "animejs";
+import { Chart, registerables } from "chart.js";
 import {
-  TransitionRoot,
-  TransitionChild,
-  Dialog,
-  DialogPanel,
-  DialogTitle,
-} from "@headlessui/vue";
-import {
-  PlusIcon,
-  PencilSquareIcon,
-  TrashIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   MagnifyingGlassIcon,
-  XMarkIcon,
-  AcademicCapIcon,
-  CalendarDaysIcon,
-  UserIcon,
 } from "@heroicons/vue/24/outline";
+
+Chart.register(...registerables);
 
 const authStore = useAuthStore();
 const kelasList = ref([]);
-const guruList = ref([]);
 const loading = ref(false);
-const submitting = ref(false);
-
-const isModalOpen = ref(false);
-const isEditMode = ref(false);
-const editId = ref(null);
-const form = reactive({
-  nama: "",
-  tahun_ajaran: "",
-  wali_kelas_id: "",
-  is_active: true,
-});
 
 const searchName = ref("");
 const filterStatus = ref("Semua");
 const currentPage = ref(1);
 const pageSize = 10;
+
+// Chart State
+const kelasChart = ref(null);
+let chartInstance = null;
 
 // --- Anime.js Stagger Animation ---
 const triggerAnimations = () => {
@@ -378,6 +241,15 @@ const triggerAnimations = () => {
     targets: ".kelas-card",
     translateY: [20, 0],
     opacity: [0, 1],
+    duration: 600,
+    easing: "easeOutQuad",
+  });
+
+  anime({
+    targets: ".kelas-chart-card",
+    translateY: [20, 0],
+    opacity: [0, 1],
+    delay: 100,
     duration: 600,
     easing: "easeOutQuad",
   });
@@ -401,23 +273,27 @@ const fetchKelas = async () => {
     loading.value = false;
     await nextTick();
     triggerAnimations();
+    renderChart();
   } catch (error) {
     toast.error("Gagal memuat data kelas");
     loading.value = false;
   }
 };
 
-const fetchGuru = async () => {
-  try {
-    const response = await UserService.getAll();
-    // Filter cuma yang rolenya Guru
-    guruList.value = (response.data.data || []).filter(
-      (u) => u.role?.name === "guru",
-    );
-  } catch (error) {
-    console.error("Gagal memuat data guru", error);
-  }
-};
+// Computed buat Chart Data
+const chartData = computed(() => {
+  let active = 0,
+    inactive = 0;
+  kelasList.value.forEach((k) => {
+    if (k.is_active) active++;
+    else inactive++;
+  });
+  return {
+    labels: ["Aktif", "Nonaktif"],
+    data: [active, inactive],
+    colors: ["#10b981", "#e4e4e7"],
+  };
+});
 
 const filteredKelas = computed(() => {
   let list = kelasList.value;
@@ -446,76 +322,33 @@ const rangeEnd = computed(() =>
   Math.min(currentPage.value * pageSize, filteredKelas.value.length),
 );
 
-const openCreateModal = () => {
-  isEditMode.value = false;
-  Object.assign(form, {
-    nama: "",
-    tahun_ajaran: "",
-    wali_kelas_id: "",
-    is_active: true,
-  });
-  isModalOpen.value = true;
-};
+// --- Render Chart ---
+const renderChart = () => {
+  if (chartInstance) chartInstance.destroy();
 
-const openEditModal = (k) => {
-  isEditMode.value = true;
-  editId.value = k.id;
-  Object.assign(form, {
-    nama: k.nama || "",
-    tahun_ajaran: k.tahun_ajaran || "",
-    wali_kelas_id: k.wali_kelas_id || "",
-    is_active: k.is_active,
-  });
-  isModalOpen.value = true;
-};
-
-const closeModal = () => (isModalOpen.value = false);
-
-const submitForm = async () => {
-  submitting.value = true;
-  try {
-    if (isEditMode.value) {
-      await KelasService.update(editId.value, form);
-      toast.success("Data kelas berhasil diperbarui!");
-    } else {
-      await KelasService.create(form);
-      toast.success("Kelas baru berhasil ditambahkan!");
-    }
-    closeModal();
-    fetchKelas();
-  } catch (error) {
-    const msg = error.response?.data?.message || "Terjadi kesalahan";
-    toast.error(msg);
-  } finally {
-    submitting.value = false;
+  if (kelasChart.value) {
+    chartInstance = new Chart(kelasChart.value, {
+      type: "doughnut",
+      data: {
+        labels: chartData.value.labels,
+        datasets: [
+          {
+            data: chartData.value.data,
+            backgroundColor: chartData.value.colors,
+            borderWidth: 0,
+            hoverOffset: 4,
+          },
+        ],
+      },
+      options: {
+        cutout: "70%",
+        plugins: { legend: { display: false }, tooltip: { enabled: true } },
+      },
+    });
   }
-};
-
-const confirmDelete = (k) => {
-  Swal.fire({
-    title: "Hapus Kelas?",
-    text: `Kamu yakin mau hapus kelas ${k.nama}? Semua siswa & iuran di kelas ini mungkin akan terpengaruh.`,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#64748b",
-    confirmButtonText: "Ya, Hapus!",
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        await KelasService.delete(k.id);
-        toast.success("Kelas berhasil dihapus");
-        fetchKelas();
-      } catch (error) {
-        const msg = error.response?.data?.message || "Gagal menghapus kelas";
-        toast.error(msg);
-      }
-    }
-  });
 };
 
 onMounted(() => {
   fetchKelas();
-  fetchGuru();
 });
 </script>

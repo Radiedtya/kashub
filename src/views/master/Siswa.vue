@@ -19,16 +19,36 @@
       </button>
     </div>
 
+    <!-- Chart Card -->
+    <div class="siswa-chart-card bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
+      <div class="relative w-40 h-40 shrink-0">
+        <canvas ref="siswaChart"></canvas>
+        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <span class="text-xl font-bold text-zinc-900">{{ siswaList.length }}</span>
+          <span class="text-zinc-400 text-[10px] uppercase tracking-wide">Total Siswa</span>
+        </div>
+      </div>
+      <div class="flex-1 w-full grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div v-for="(label, index) in chartData.labels" :key="label" class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
+          <span class="w-3 h-3 rounded-full" :style="{ backgroundColor: chartData.colors[index] }"></span>
+          <div class="flex-1">
+            <p class="text-xs text-zinc-500">{{ label }}</p>
+            <p class="text-lg font-bold text-zinc-800">{{ chartData.data[index] }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Card Tabel -->
     <div
       class="siswa-card bg-white border border-zinc-200 rounded-xl overflow-hidden"
     >
-      <!-- Filter Row -->
+      <!-- Filter Row (Diubah biar search-nya flex-1 / ngisi full) -->
       <div
-        class="flex flex-col md:flex-row items-stretch md:items-center gap-3 px-6 py-4 border-b border-zinc-100 bg-zinc-50/50"
+        class="flex flex-col md:flex-row items-stretch md:items-center gap-3 p-4 border-b border-zinc-100 bg-zinc-50/50"
       >
-        <!-- Search -->
-        <div class="relative w-full md:w-64">
+        <!-- Search (Diubah jadi flex-1 biar panjang) -->
+        <div class="relative flex-1 w-full">
           <MagnifyingGlassIcon
             class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
           />
@@ -40,8 +60,9 @@
           />
         </div>
 
-        <!-- Filter Kelas -->
+        <!-- Filter Kelas (Hidden kalau Guru) -->
         <select
+          v-if="authStore.role !== 'guru'"
           v-model="filterKelas"
           class="w-full md:w-auto px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-600 focus:ring-1 focus:ring-zinc-900 outline-none bg-white"
         >
@@ -69,7 +90,7 @@
             class="w-full md:w-auto flex items-center justify-center gap-1.5 px-3 py-2 border border-zinc-200 rounded-lg text-sm text-red-600 hover:bg-red-50 transition font-medium disabled:opacity-50"
           >
             <DocumentArrowDownIcon class="w-4 h-4" />
-            <span>Ekspor PDF</span>
+            <span>Export PDF</span>
           </button>
           <button
             @click="exportFile('excel')"
@@ -77,7 +98,7 @@
             class="w-full md:w-auto flex items-center justify-center gap-1.5 px-3 py-2 border border-zinc-200 rounded-lg text-sm text-green-600 hover:bg-green-50 transition font-medium disabled:opacity-50"
           >
             <DocumentArrowDownIcon class="w-4 h-4" />
-            <span>Ekspor Excel</span>
+            <span>Export Excel</span>
           </button>
         </template>
       </div>
@@ -129,7 +150,7 @@
               </div>
 
               <!-- Nama & Email + Foto Profil -->
-              <div class="flex items-center gap-3 pr-4 min-w-37.5">
+              <div class="flex items-center gap-3 pr-4 min-w-50">
                 <img
                   v-if="siswa.user?.foto"
                   :src="siswa.user.foto"
@@ -180,14 +201,14 @@
               </div>
 
               <!-- Tgl Lahir -->
-              <div class="pr-4 text-zinc-500 text-xs min-w-30">
+              <div class="pr-4 text-zinc-500 text-xs min-w-35">
                 {{ siswa.tempat_lahir || "-" }}<br />
                 {{ formatDate(siswa.tanggal_lahir) || "-" }}
               </div>
 
               <!-- Alamat -->
               <div
-                class="pr-4 text-zinc-500 text-xs truncate max-w-50"
+                class="pr-4 text-zinc-500 text-xs truncate min-w-37.5 max-w-50"
                 :title="siswa.alamat"
               >
                 {{ siswa.alamat || "-" }}
@@ -196,7 +217,7 @@
               <!-- Ortu (Hidden untuk Bendahara) -->
               <div
                 v-if="authStore.role === 'guru'"
-                class="flex flex-col pr-4 min-w-30"
+                class="flex flex-col pr-4 min-w-35"
               >
                 <span class="text-zinc-700 text-xs font-medium">{{
                   siswa.nama_ortu || "-"
@@ -240,7 +261,9 @@
                     <TrashIcon class="w-4 h-4" />
                   </button>
                 </template>
-                <span v-else class="text-xs text-zinc-300 italic">tidak ada aksi</span>
+                <span v-else class="text-xs text-zinc-300 italic"
+                  >tidak ada aksi</span
+                >
               </div>
             </div>
           </div>
@@ -404,7 +427,8 @@
                       <select
                         v-model="form.kelas_id"
                         required
-                        class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none bg-white appearance-none"
+                        class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none bg-white appearance-none disabled:bg-zinc-50 disabled:cursor-not-allowed disabled:text-zinc-500"
+                        :disabled="authStore.role === 'guru'"
                       >
                         <option value="" disabled>Pilih Kelas</option>
                         <option
@@ -590,7 +614,8 @@ import { useAuthStore } from "@/stores/auth";
 import SiswaService from "@/api/siswa";
 import KelasService from "@/api/kelas";
 import LaporanService from "@/api/laporan";
-import anime from "animejs"; // <-- Import animejs
+import anime from "animejs";
+import { Chart, registerables } from "chart.js"; // <-- Import Chart.js
 import {
   TransitionRoot,
   TransitionChild,
@@ -619,6 +644,8 @@ import {
   DocumentArrowDownIcon,
 } from "@heroicons/vue/24/outline";
 import dayjs from "dayjs";
+
+Chart.register(...registerables);
 
 const authStore = useAuthStore();
 const siswaList = ref([]);
@@ -655,12 +682,16 @@ const filterStatus = ref("Semua");
 const currentPage = ref(1);
 const pageSize = 10;
 
-// Dynamic Grid Template (minmax biar responsif)
+// Chart State
+const siswaChart = ref(null);
+let chartInstance = null;
+
+// Dynamic Grid Template (Diubah paddingnya biar gak terlalu mepet)
 const gridTemplate = computed(() => {
   if (authStore.role === "guru") {
-    return "60px minmax(150px,1.5fr) minmax(120px,1fr) minmax(100px,1fr) minmax(120px,1fr) minmax(120px,1fr) minmax(150px,1.5fr) minmax(120px,1fr) minmax(80px,1fr) minmax(100px,100px)";
+    return "60px minmax(200px, 2fr) minmax(120px, 1fr) minmax(100px, 1fr) minmax(140px, 1fr) minmax(140px, 1fr) minmax(200px, 1.5fr) minmax(140px, 1fr) minmax(100px, 1fr) minmax(120px, 1fr)";
   }
-  return "60px minmax(150px,1.5fr) minmax(120px,1fr) minmax(100px,1fr) minmax(120px,1fr) minmax(120px,1fr) minmax(150px,1.5fr) minmax(80px,1fr) minmax(100px,100px)";
+  return "60px minmax(200px, 2fr) minmax(120px, 1fr) minmax(100px, 1fr) minmax(140px, 1fr) minmax(140px, 1fr) minmax(200px, 1.5fr) minmax(100px, 1fr) minmax(120px, 1fr)";
 });
 
 // --- Anime.js Stagger Animation ---
@@ -674,10 +705,19 @@ const triggerAnimations = () => {
   });
 
   anime({
+    targets: ".siswa-chart-card",
+    translateY: [20, 0],
+    opacity: [0, 1],
+    duration: 600,
+    delay: 100,
+    easing: "easeOutQuad",
+  });
+
+  anime({
     targets: ".siswa-row",
     translateY: [10, 0],
     opacity: [0, 1],
-    delay: anime.stagger(50, { start: 200 }), // Muncul berurutan tiap 50ms
+    delay: anime.stagger(50, { start: 200 }),
     duration: 500,
     easing: "easeOutQuad",
   });
@@ -690,8 +730,9 @@ const fetchSiswa = async () => {
     siswaList.value = response.data.data || [];
 
     loading.value = false;
-    await nextTick(); // Tunggu DOM update
-    triggerAnimations(); // Jalankan animasi
+    await nextTick();
+    triggerAnimations();
+    renderChart(); // Render chart setelah data ada
   } catch (error) {
     toast.error("Gagal memuat data siswa");
     loading.value = false;
@@ -716,8 +757,51 @@ const formatDate = (date) => {
   return date ? dayjs(date).format("DD MMM YYYY") : "-";
 };
 
+// Computed buat Chart Data
+const chartData = computed(() => {
+  let active = 0, inactive = 0;
+  siswaList.value.forEach(s => {
+    if (s.user?.is_active) active++;
+    else inactive++;
+  });
+  return {
+    labels: ['Aktif', 'Nonaktif'],
+    data: [active, inactive],
+    colors: ['#10b981', '#e4e4e7']
+  };
+});
+
+const renderChart = () => {
+  if (chartInstance) chartInstance.destroy();
+
+  if (siswaChart.value) {
+    chartInstance = new Chart(siswaChart.value, {
+      type: 'doughnut',
+      data: {
+        labels: chartData.value.labels,
+        datasets: [{
+          data: chartData.value.data,
+          backgroundColor: chartData.value.colors,
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        cutout: "70%",
+        plugins: { legend: { display: false }, tooltip: { enabled: true } }
+      }
+    });
+  }
+};
+
 const filteredSiswa = computed(() => {
   let list = siswaList.value;
+
+  // FIX: Kalau yang login Guru, filter cuma kelasnya dia aja
+  if (authStore.role === "guru" && authStore.user?.kelas_id) {
+    list = list.filter((s) => s.kelas_id === authStore.user.kelas_id);
+  }
+
   if (searchName.value)
     list = list.filter((s) =>
       s.user?.name?.toLowerCase().includes(searchName.value.toLowerCase()),
@@ -783,7 +867,8 @@ const openCreateModal = () => {
     name: "",
     email: "",
     password: "",
-    kelas_id: "",
+    // FIX: Auto-fill kelas guru
+    kelas_id: authStore.role === "guru" ? authStore.user.kelas_id : "",
     nis: "",
     nisn: "",
     no_hp: "",

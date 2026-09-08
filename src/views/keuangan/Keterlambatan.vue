@@ -28,6 +28,33 @@
       </button>
     </div>
 
+    <!-- Chart Card -->
+    <div class="keterlambatan-chart-card bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
+      <div class="relative w-40 h-40 shrink-0">
+        <canvas ref="statusChart"></canvas>
+        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <span class="text-xl font-bold text-zinc-900">{{ keterlambatanList.length }}</span>
+          <span class="text-zinc-400 text-[10px] uppercase tracking-wide">Total Denda</span>
+        </div>
+      </div>
+      <div class="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
+          <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+          <div class="flex-1">
+            <p class="text-xs text-zinc-500">Lunas</p>
+            <p class="text-lg font-bold text-zinc-800">{{ chartData.data[0] }}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
+          <span class="w-3 h-3 rounded-full bg-red-500"></span>
+          <div class="flex-1">
+            <p class="text-xs text-zinc-500">Belum Bayar</p>
+            <p class="text-lg font-bold text-zinc-800">{{ chartData.data[1] }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Card Tabel -->
     <div
       class="keterlambatan-card bg-white border border-zinc-200 rounded-xl overflow-hidden"
@@ -35,9 +62,10 @@
       <!-- Filter Row (Hanya Guru & Bendahara) -->
       <div
         v-if="authStore.role === 'guru' || authStore.role === 'bendahara'"
-        class="flex flex-col md:flex-row items-stretch md:items-center gap-3 px-6 py-4 border-b border-zinc-100 bg-zinc-50/50"
+        class="flex flex-col md:flex-row items-stretch md:items-center gap-3 p-4 border-b border-zinc-100 bg-zinc-50/50"
       >
-        <div class="relative w-full md:w-64">
+        <!-- Search (Flex-1) -->
+        <div class="relative flex-1 w-full">
           <MagnifyingGlassIcon
             class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
           />
@@ -55,7 +83,7 @@
         >
           <option value="Semua">Semua Status</option>
           <option value="belum_bayar">Belum Bayar</option>
-          <option value="lunas">Lunas</option>
+          <option value="sudah_bayar_denda">Lunas (Sudah Bayar Denda)</option>
         </select>
       </div>
 
@@ -64,12 +92,7 @@
         <div class="min-w-full">
           <div
             class="grid items-center px-6 py-3 text-zinc-500 text-xs font-semibold uppercase tracking-wider border-b border-zinc-100 bg-white"
-            style="
-              grid-template-columns:
-                60px minmax(150px, 1.5fr) minmax(100px, 1fr)
-                minmax(100px, 1fr) minmax(80px, 1fr) minmax(120px, 1fr)
-                minmax(100px, 100px);
-            "
+            :style="{ gridTemplateColumns: gridTemplate }"
           >
             <div class="text-center">No</div>
             <div>Siswa</div>
@@ -98,18 +121,13 @@
               v-for="(telat, index) in pagedKeterlambatan"
               :key="telat.id"
               class="keterlambatan-row grid items-center px-6 py-4 border-b border-zinc-50 last:border-0 hover:bg-zinc-50 transition-colors text-sm"
-              style="
-                grid-template-columns:
-                  60px minmax(150px, 1.5fr) minmax(100px, 1fr)
-                  minmax(100px, 1fr) minmax(80px, 1fr) minmax(120px, 1fr)
-                  minmax(100px, 100px);
-              "
+              :style="{ gridTemplateColumns: gridTemplate }"
             >
               <div class="text-center text-zinc-400 font-medium">
                 {{ (currentPage - 1) * pageSize + index + 1 }}
               </div>
 
-              <div class="flex items-center gap-3 pr-4 min-w-37.5">
+              <div class="flex items-center gap-3 pr-4 min-w-50">
                 <img
                   v-if="telat.siswa?.user?.foto"
                   :src="telat.siswa.user.foto"
@@ -132,7 +150,7 @@
                 </div>
               </div>
 
-              <div class="pr-4 min-w-25">
+              <div class="pr-4 min-w-30">
                 <span
                   class="px-2 py-0.5 bg-zinc-100 text-zinc-600 text-xs rounded font-medium"
                 >
@@ -140,7 +158,7 @@
                 </span>
               </div>
 
-              <div class="pr-4 text-zinc-600 text-xs min-w-25">
+              <div class="pr-4 text-zinc-600 text-xs min-w-30">
                 {{
                   telat.iuran
                     ? `${getMonthName(telat.iuran.bulan)} ${telat.iuran.tahun}`
@@ -148,7 +166,7 @@
                 }}
               </div>
 
-              <div class="pr-4 text-zinc-700 font-medium min-w-20">
+              <div class="pr-4 text-zinc-700 font-medium min-w-25">
                 {{ telat.hari_telat }} hari
               </div>
 
@@ -156,7 +174,7 @@
                 Rp {{ formatRupiah(telat.denda) }}
               </div>
 
-              <div class="text-right min-w-25">
+              <div class="text-right min-w-30">
                 <span
                   class="px-2 py-1 text-xs rounded font-medium"
                   :class="
@@ -221,12 +239,15 @@ import { toast } from "vue3-toastify";
 import { useAuthStore } from "@/stores/auth";
 import KeterlambatanService from "@/api/keterlambatan";
 import anime from "animejs";
+import { Chart, registerables } from "chart.js";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MagnifyingGlassIcon,
   ArrowPathIcon,
 } from "@heroicons/vue/24/outline";
+
+Chart.register(...registerables);
 
 const authStore = useAuthStore();
 const keterlambatanList = ref([]);
@@ -238,12 +259,30 @@ const filterStatus = ref("Semua");
 const currentPage = ref(1);
 const pageSize = 30;
 
+// Chart State
+const statusChart = ref(null);
+let chartInstance = null;
+
+// Dynamic Grid Template
+const gridTemplate = computed(() => {
+  return "60px minmax(200px, 1.5fr) minmax(120px, 1fr) minmax(120px, 1fr) minmax(100px, 1fr) minmax(120px, 1fr) minmax(120px, 1fr)";
+});
+
 // --- Anime.js Stagger Animation ---
 const triggerAnimations = () => {
   anime({
     targets: ".keterlambatan-card",
     translateY: [20, 0],
     opacity: [0, 1],
+    duration: 600,
+    easing: "easeOutQuad",
+  });
+
+  anime({
+    targets: ".keterlambatan-chart-card",
+    translateY: [20, 0],
+    opacity: [0, 1],
+    delay: 100,
     duration: 600,
     easing: "easeOutQuad",
   });
@@ -262,12 +301,10 @@ const fetchKeterlambatan = async () => {
   loading.value = true;
   try {
     let response;
-    // Kalau Siswa, pake endpoint khusus
     if (authStore.role === "siswa") {
       response = await KeterlambatanService.getMyKeterlambatan();
       keterlambatanList.value = response.data.data.keterlambatan || [];
     } else {
-      // Kalau Guru/Bendahara, pake endpoint all
       response = await KeterlambatanService.getAll();
       keterlambatanList.value = response.data.data || [];
     }
@@ -275,6 +312,7 @@ const fetchKeterlambatan = async () => {
     loading.value = false;
     await nextTick();
     triggerAnimations();
+    renderChart();
   } catch (error) {
     toast.error("Gagal memuat data keterlambatan");
     loading.value = false;
@@ -287,7 +325,7 @@ const cekKeterlambatan = async () => {
   try {
     const response = await KeterlambatanService.cekKeterlambatan();
     toast.success("Pengecekan keterlambatan berhasil!");
-    fetchKeterlambatan(); // Refresh tabel setelah cek
+    fetchKeterlambatan();
   } catch (error) {
     const msg = error.response?.data?.message || "Gagal menjalankan pengecekan";
     toast.error(msg);
@@ -318,8 +356,29 @@ const getMonthName = (monthNum) => {
   return months[monthNum - 1] || "-";
 };
 
+// Computed buat Chart Data
+const chartData = computed(() => {
+  let lunas = 0, belum_bayar = 0;
+  keterlambatanList.value.forEach(k => {
+    // FIX: Cek 'sudah_bayar_denda' sesuai enum database
+    if (k.status === 'sudah_bayar_denda') lunas++;
+    else if (k.status === 'belum_bayar') belum_bayar++;
+  });
+  return {
+    labels: ['Lunas', 'Belum Bayar'],
+    data: [lunas, belum_bayar],
+    colors: ['#10b981', '#ef4444']
+  };
+});
+
 const filteredKeterlambatan = computed(() => {
   let list = keterlambatanList.value;
+
+  // FIX: Kalau yang login Guru, filter cuma kelasnya dia aja
+  if (authStore.role === 'guru' && authStore.user?.kelas_id) {
+    list = list.filter((k) => k.siswa?.kelas_id === authStore.user.kelas_id);
+  }
+
   if (searchName.value) {
     list = list.filter((t) =>
       t.siswa?.user?.name
@@ -348,6 +407,30 @@ const rangeStart = computed(() =>
 const rangeEnd = computed(() =>
   Math.min(currentPage.value * pageSize, filteredKeterlambatan.value.length),
 );
+
+// --- Render Chart ---
+const renderChart = () => {
+  if (chartInstance) chartInstance.destroy();
+
+  if (statusChart.value) {
+    chartInstance = new Chart(statusChart.value, {
+      type: 'doughnut',
+      data: {
+        labels: chartData.value.labels,
+        datasets: [{
+          data: chartData.value.data,
+          backgroundColor: chartData.value.colors,
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        cutout: "70%",
+        plugins: { legend: { display: false }, tooltip: { enabled: true } }
+      }
+    });
+  }
+};
 
 onMounted(() => {
   fetchKeterlambatan();

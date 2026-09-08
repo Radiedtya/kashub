@@ -24,6 +24,26 @@
       </button>
     </div>
 
+    <!-- Chart Card -->
+    <div class="iuran-chart-card bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
+      <div class="relative w-40 h-40 shrink-0">
+        <canvas ref="iuranChart"></canvas>
+        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <span class="text-xl font-bold text-zinc-900">{{ iuranList.length }}</span>
+          <span class="text-zinc-400 text-[10px] uppercase tracking-wide">Total Iuran</span>
+        </div>
+      </div>
+      <div class="flex-1 w-full grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div v-for="(label, index) in chartData.labels" :key="label" class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
+          <span class="w-3 h-3 rounded-full" :style="{ backgroundColor: chartData.colors[index] }"></span>
+          <div class="flex-1">
+            <p class="text-xs text-zinc-500">{{ label }}</p>
+            <p class="text-lg font-bold text-zinc-800">{{ chartData.data[index] }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Card Tabel -->
     <div
       class="iuran-card bg-white border border-zinc-200 rounded-xl overflow-hidden"
@@ -44,9 +64,9 @@
           />
         </div>
 
-        <!-- Filter ini cuma buat Guru -->
+        <!-- Filter untuk bendahara -->
         <select
-          v-if="authStore.role === 'guru'"
+          v-if="authStore.role === 'bendahara'"
           v-model="filterKelas"
           class="w-full md:w-auto px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-600 focus:ring-1 focus:ring-zinc-900 outline-none bg-white"
         >
@@ -302,7 +322,7 @@
                   @submit.prevent="submitForm"
                   class="p-6 grid grid-cols-2 gap-x-6 gap-y-4 max-h-[70vh] overflow-y-auto"
                 >
-                  <!-- Isi Form Guru (Sama seperti sebelumnya) -->
+                  <!-- Isi Form Guru -->
                   <div class="col-span-2">
                     <label class="text-xs text-zinc-600 font-medium"
                       >Kelas</label
@@ -314,7 +334,8 @@
                       <select
                         v-model="form.kelas_id"
                         required
-                        class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none bg-white appearance-none"
+                        class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none bg-white appearance-none disabled:bg-zinc-50 disabled:cursor-not-allowed disabled:text-zinc-500"
+                        :disabled="authStore.role === 'guru'"
                       >
                         <option value="" disabled>Pilih Kelas</option>
                         <option
@@ -611,9 +632,10 @@ import { toast } from "vue3-toastify";
 import Swal from "sweetalert2";
 import { useAuthStore } from "@/stores/auth";
 import IuranService from "@/api/iuran";
-import TransaksiService from "@/api/transaksi"; // <-- Import buat bayar
+import TransaksiService from "@/api/transaksi";
 import KelasService from "@/api/kelas";
 import anime from "animejs";
+import { Chart, registerables } from "chart.js"; // <-- Import Chart.js
 import {
   TransitionRoot,
   TransitionChild,
@@ -638,10 +660,12 @@ import {
 } from "@heroicons/vue/24/outline";
 import dayjs from "dayjs";
 
+Chart.register(...registerables);
+
 const authStore = useAuthStore();
 const iuranList = ref([]);
 const kelasList = ref([]);
-const myTransaksi = ref([]); // <-- Buat simpan transaksi siswa
+const myTransaksi = ref([]);
 const loading = ref(false);
 const submitting = ref(false);
 const paying = ref(false);
@@ -675,11 +699,15 @@ const filterStatus = ref("Semua");
 const currentPage = ref(1);
 const pageSize = 15;
 
+// Chart State
+const iuranChart = ref(null);
+let chartInstance = null;
+
 const gridTemplate = computed(() => {
   if (authStore.role === "guru") {
     return "60px minmax(100px,1fr) minmax(100px,1fr) minmax(100px,1fr) minmax(100px,1fr) minmax(200px,1.5fr) minmax(100px,120px)";
   }
-  return "60px minmax(100px,1fr) minmax(100px,1fr) minmax(100px,1fr) minmax(100px,1fr) minmax(100px,120px)"; // Siswa
+  return "60px minmax(100px,1fr) minmax(100px,1fr) minmax(100px,1fr) minmax(100px,1fr) minmax(100px,120px)";
 });
 
 const triggerAnimations = () => {
@@ -688,6 +716,14 @@ const triggerAnimations = () => {
     translateY: [20, 0],
     opacity: [0, 1],
     duration: 600,
+    easing: "easeOutQuad",
+  });
+  anime({
+    targets: ".iuran-chart-card",
+    translateY: [20, 0],
+    opacity: [0, 1],
+    duration: 600,
+    delay: 100,
     easing: "easeOutQuad",
   });
   anime({
@@ -719,6 +755,7 @@ const fetchIuran = async () => {
     loading.value = false;
     await nextTick();
     triggerAnimations();
+    renderChart(); // Render chart setelah data ada
   } catch (error) {
     toast.error("Gagal memuat data iuran");
     loading.value = false;
@@ -728,7 +765,6 @@ const fetchIuran = async () => {
 const fetchMyTransaksi = async () => {
   try {
     const res = await TransaksiService.getMyTransaksi();
-    // FIX: Ambil array transaksinya dari dalem object data
     myTransaksi.value = res.data.data.transaksi || [];
   } catch (error) {
     console.error("Gagal fetch transaksi siswa", error);
@@ -771,7 +807,6 @@ const getMonthName = (monthNum) => {
   return months[monthNum - 1] || "-";
 };
 
-// Cek status pembayaran siswa per iuran
 const getPaymentStatus = (iuranId) => {
   const trx = myTransaksi.value.find((t) => t.iuran_id === iuranId);
   if (!trx)
@@ -805,8 +840,66 @@ const getPaymentStatus = (iuranId) => {
   };
 };
 
+// Computed buat Chart Data
+const chartData = computed(() => {
+  if (authStore.role === 'siswa') {
+    let lunas = 0, pending = 0, belum_bayar = 0;
+    iuranList.value.forEach(i => {
+      const status = getPaymentStatus(i.id).status;
+      if (status === 'confirmed') lunas++;
+      else if (status === 'pending') pending++;
+      else belum_bayar++;
+    });
+    return {
+      labels: ['Lunas', 'Pending', 'Belum Bayar'],
+      data: [lunas, pending, belum_bayar],
+      colors: ['#10b981', '#f59e0b', '#e4e4e7']
+    };
+  } else {
+    let active = 0, inactive = 0;
+    iuranList.value.forEach(i => {
+      if (i.is_active) active++;
+      else inactive++;
+    });
+    return {
+      labels: ['Aktif', 'Nonaktif'],
+      data: [active, inactive],
+      colors: ['#3b82f6', '#e4e4e7']
+    };
+  }
+});
+
+const renderChart = () => {
+  if (chartInstance) chartInstance.destroy();
+
+  if (iuranChart.value) {
+    chartInstance = new Chart(iuranChart.value, {
+      type: 'doughnut',
+      data: {
+        labels: chartData.value.labels,
+        datasets: [{
+          data: chartData.value.data,
+          backgroundColor: chartData.value.colors,
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        cutout: "70%",
+        plugins: { legend: { display: false }, tooltip: { enabled: true } }
+      }
+    });
+  }
+};
+
 const filteredIuran = computed(() => {
   let list = iuranList.value;
+
+  // FIX: Kalau yang login Guru, filter cuma kelasnya dia aja
+  if (authStore.role === 'guru' && authStore.user?.kelas_id) {
+    list = list.filter((i) => i.kelas_id === authStore.user.kelas_id);
+  }
+
   if (searchBulan.value) {
     const search = searchBulan.value.toLowerCase();
     list = list.filter(
@@ -851,7 +944,8 @@ const rangeEnd = computed(() =>
 const openCreateModal = () => {
   isEditMode.value = false;
   Object.assign(form, {
-    kelas_id: "",
+    // FIX: Auto-fill kelas guru
+    kelas_id: authStore.role === 'guru' ? authStore.user.kelas_id : "",
     bulan: "",
     tahun: new Date().getFullYear(),
     nominal: "",
@@ -940,7 +1034,7 @@ const submitPayment = async () => {
     await TransaksiService.create(payForm);
     toast.success("Bukti pembayaran berhasil dikirim! Menunggu konfirmasi.");
     closePayModal();
-    fetchIuran(); // Refresh tabel biar status berubah jadi Pending
+    fetchIuran();
   } catch (error) {
     const msg = error.response?.data?.message || "Gagal mengirim pembayaran";
     toast.error(msg);
