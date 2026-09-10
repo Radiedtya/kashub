@@ -58,7 +58,7 @@
 
     <!-- Chart & Stat Cards -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-      <!-- Chart Doughnut -->
+      <!-- Chart Doughnut (Slide from Left) -->
       <div
         class="laporan-chart-card bg-white border border-zinc-200 rounded-xl p-6 flex flex-col items-center justify-center"
       >
@@ -91,7 +91,7 @@
         </div>
       </div>
 
-      <!-- Stat Cards (Col-span 2) -->
+      <!-- Stat Cards (Col-span 2) - Scale Up -->
       <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-5">
         <div
           class="laporan-stat bg-white border border-zinc-200 rounded-xl p-5 flex flex-col justify-center"
@@ -104,7 +104,7 @@
             </div>
           </div>
           <p class="text-2xl font-bold text-zinc-900">
-            Rp {{ formatRupiah(statistik.total_pemasukan) }}
+            Rp {{ formatRupiah(animatedMasuk) }}
           </p>
           <p class="text-zinc-500 text-sm mt-1">Total Pemasukan</p>
         </div>
@@ -120,7 +120,7 @@
             </div>
           </div>
           <p class="text-2xl font-bold text-zinc-900">
-            Rp {{ formatRupiah(statistik.total_pengeluaran) }}
+            Rp {{ formatRupiah(animatedKeluar) }}
           </p>
           <p class="text-zinc-500 text-sm mt-1">Total Pengeluaran</p>
         </div>
@@ -136,14 +136,14 @@
             </div>
           </div>
           <p class="text-2xl font-bold text-zinc-900">
-            Rp {{ formatRupiah(statistik.saldo) }}
+            Rp {{ formatRupiah(animatedSaldo) }}
           </p>
           <p class="text-zinc-500 text-sm mt-1">Saldo Akhir</p>
         </div>
       </div>
     </div>
 
-    <!-- Detail Transaksi & Pengeluaran -->
+    <!-- Detail Transaksi & Pengeluaran (Slide from Right) -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
       <!-- Detail Pemasukan -->
       <div class="laporan-card bg-white border border-zinc-200 rounded-xl p-6">
@@ -159,7 +159,6 @@
             :key="trx.id"
             class="flex items-center gap-3 py-3"
           >
-            <!-- Avatar Profile Siswa -->
             <img
               v-if="trx.siswa?.user?.foto"
               :src="trx.siswa.user.foto"
@@ -202,14 +201,13 @@
         </h2>
         <p class="text-zinc-400 text-xs mb-4">Pengeluaran yang disetujui</p>
         <div
-          class="flex flex-col divide-y divide-zinc-100 max-h-100k overflow-y-auto pr-2"
+          class="flex flex-col divide-y divide-zinc-100 max-h-100 overflow-y-auto pr-2"
         >
           <div
             v-for="p in pengeluaranList"
             :key="p.id"
             class="flex items-center gap-3 py-3"
           >
-            <!-- Avatar Profile Pengaju -->
             <img
               v-if="p.created_by?.foto"
               :src="p.created_by.foto"
@@ -290,29 +288,66 @@ const pengeluaranList = ref([]);
 const laporanChart = ref(null);
 let chartInstance = null;
 
+// State buat Animasi Count-Up
+const animatedMasuk = ref(0);
+const animatedKeluar = ref(0);
+const animatedSaldo = ref(0);
+
+// Animasi Muncul (Variasi Arah)
 const triggerAnimations = () => {
-  anime({
-    targets: ".laporan-stat",
-    translateY: [20, 0],
-    opacity: [0, 1],
-    delay: anime.stagger(100),
-    duration: 600,
-    easing: "easeOutQuad",
-  });
+  // 1. Chart Card: Slide dari kiri
   anime({
     targets: ".laporan-chart-card",
-    translateY: [20, 0],
+    translateX: [-100, 0],
     opacity: [0, 1],
-    duration: 600,
-    easing: "easeOutQuad",
+    duration: 800,
+    easing: 'easeOutQuart'
   });
+
+  // 2. Stat Cards: Scale up (membesar)
+  anime({
+    targets: ".laporan-stat",
+    scale: [0.8, 1],
+    opacity: [0, 1],
+    delay: anime.stagger(150, { start: 200 }),
+    duration: 700,
+    easing: 'easeOutBack'
+  });
+
+  // 3. Detail Cards: Slide dari kanan
   anime({
     targets: ".laporan-card",
-    translateY: [30, 0],
+    translateX: [100, 0],
     opacity: [0, 1],
-    delay: anime.stagger(150, { start: 300 }),
-    duration: 700,
-    easing: "easeOutQuad",
+    delay: anime.stagger(150, { start: 400 }),
+    duration: 800,
+    easing: 'easeOutQuart'
+  });
+};
+
+// Animasi Angka Naik (Count-Up)
+const animateStats = () => {
+  const stats = statistik.value;
+  
+  const counters = [
+    { ref: animatedMasuk, target: stats.total_pemasukan },
+    { ref: animatedKeluar, target: stats.total_pengeluaran },
+    { ref: animatedSaldo, target: stats.saldo }
+  ];
+
+  counters.forEach((counter, index) => {
+    const obj = { val: 0 };
+    anime({
+      targets: obj,
+      val: counter.target,
+      round: 1,
+      duration: 1500,
+      delay: 300 + (index * 150),
+      easing: 'easeOutExpo',
+      update: () => {
+        counter.ref.value = obj.val;
+      }
+    });
   });
 };
 
@@ -373,6 +408,7 @@ const fetchLaporan = async () => {
     loading.value = false;
     await nextTick();
     triggerAnimations();
+    animateStats(); // Jalankan count-up
     renderChart();
   } catch (error) {
     toast.error("Gagal memuat data laporan");
@@ -464,7 +500,6 @@ onMounted(async () => {
     const resKelas = await KelasService.getAll();
     kelasList.value = resKelas.data.data || [];
 
-    // Kalau yang login Guru, auto-set filterKelas ke kelasnya dia
     if (authStore.role === "guru" && authStore.user?.kelas_id) {
       filterKelas.value = authStore.user.kelas_id;
     }

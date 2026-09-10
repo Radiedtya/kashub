@@ -16,13 +16,13 @@
     </div>
 
     <div v-else-if="siswaData" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Kolom Kiri: Info Singkat -->
-      <div class="space-y-6">
+      <!-- Kolom Kiri: Info Singkat (Slide from Left) -->
+      <div class="space-y-6 detail-left-col">
         <div
           class="bg-white border border-zinc-200 rounded-xl p-6 flex flex-col items-center text-center"
         >
           <div
-            class="w-24 h-24 rounded-full bg-zinc-900 flex items-center justify-center text-white font-bold text-4xl shrink-0 border-4 border-zinc-100 mb-4 overflow-hidden"
+            class="w-24 h-24 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400 font-bold text-4xl shrink-0 border-4 border-white mb-4 overflow-hidden shadow-sm"
           >
             <img
               v-if="siswaData.user?.foto"
@@ -35,10 +35,14 @@
           <h2 class="text-lg font-bold text-zinc-900">
             {{ siswaData.user?.name }}
           </h2>
-          <p class="text-sm text-zinc-500">{{ siswaData.user?.email }}</p>
+          <p class="text-sm text-zinc-500 mb-3">{{ siswaData.user?.email }}</p>
+          
+          <span class="mb-4 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 text-zinc-600 capitalize">
+            {{ authStore.role === 'guru' ? 'Siswa' : '' }}
+          </span>
 
           <div
-            class="w-full mt-4 pt-4 border-t border-zinc-100 space-y-2 text-left"
+            class="w-full bg-zinc-50/70 rounded-lg p-4 space-y-2.5 text-left border border-zinc-100"
           >
             <div class="flex justify-between text-sm">
               <span class="text-zinc-400">NIS</span>
@@ -55,7 +59,7 @@
             <div class="flex justify-between text-sm">
               <span class="text-zinc-400">Kelas</span>
               <span
-                class="font-medium text-zinc-700 px-2 py-0.5 bg-zinc-100 rounded"
+                class="font-medium text-zinc-700 px-2 py-0.5 bg-white border border-zinc-200 rounded text-xs"
                 >{{ siswaData.kelas?.nama || "-" }}</span
               >
             </div>
@@ -66,7 +70,7 @@
               }}</span>
             </div>
             <div class="flex justify-between text-sm">
-              <span class="text-zinc-400">Tanggal Lahir</span>
+              <span class="text-zinc-400">Tgl Lahir</span>
               <span class="font-medium text-zinc-700">{{
                 formatDate(siswaData.tanggal_lahir)
               }}</span>
@@ -92,7 +96,7 @@
             </div>
             <div class="w-full h-2.5 bg-zinc-100 rounded-full overflow-hidden">
               <div
-                class="h-full rounded-full transition-all duration-500"
+                class="h-full rounded-full transition-all duration-1000 ease-out"
                 :class="
                   paymentProgress === 100 ? 'bg-emerald-500' : 'bg-blue-600'
                 "
@@ -110,10 +114,11 @@
           v-if="authStore.role === 'guru'"
           class="bg-white border border-zinc-200 rounded-xl p-6"
         >
-          <h3 class="text-sm font-semibold text-zinc-800 mb-3">
+          <h3 class="text-sm font-semibold text-zinc-800 mb-3 flex items-center gap-2">
+            <UsersIcon class="w-4 h-4 text-zinc-500" />
             Data Orang Tua
           </h3>
-          <div class="space-y-2">
+          <div class="space-y-2.5 bg-zinc-50/70 rounded-lg p-4 border border-zinc-100">
             <div class="flex justify-between text-sm">
               <span class="text-zinc-400">Nama</span>
               <span class="font-medium text-zinc-700">{{
@@ -130,11 +135,14 @@
         </div>
       </div>
 
-      <!-- Kolom Kanan: Riwayat -->
-      <div class="lg:col-span-2 space-y-6">
+      <!-- Kolom Kanan: Riwayat (Slide from Right) -->
+      <div class="lg:col-span-2 space-y-6 detail-right-col">
         <!-- Riwayat Transaksi -->
         <div class="bg-white border border-zinc-200 rounded-xl p-6">
-          <h3 class="text-sm font-semibold text-zinc-800 mb-4">
+          <h3 class="text-sm font-semibold text-zinc-800 mb-4 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center border border-emerald-100">
+              <CurrencyDollarIcon class="w-5 h-5 text-emerald-600" />
+            </div>
             Riwayat Pembayaran Iuran
           </h3>
 
@@ -161,7 +169,7 @@
                 <tr
                   v-for="trx in transaksiList"
                   :key="trx.id"
-                  class="border-b border-zinc-50"
+                  class="border-b border-zinc-50 hover:bg-zinc-50/50 transition-colors"
                 >
                   <td class="px-4 py-3 capitalize">
                     {{ getMonthName(trx.iuran?.bulan) }} {{ trx.iuran?.tahun }}
@@ -188,7 +196,10 @@
 
         <!-- Riwayat Keterlambatan -->
         <div class="bg-white border border-zinc-200 rounded-xl p-6">
-          <h3 class="text-sm font-semibold text-zinc-800 mb-4">
+          <h3 class="text-sm font-semibold text-zinc-800 mb-4 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center border border-red-100">
+              <ClockIcon class="w-5 h-5 text-red-600" />
+            </div>
             Riwayat Keterlambatan & Denda
           </h3>
 
@@ -218,7 +229,7 @@
                 <tr
                   v-for="telat in keterlambatanList"
                   :key="telat.id"
-                  class="border-b border-zinc-50"
+                  class="border-b border-zinc-50 hover:bg-zinc-50/50 transition-colors"
                 >
                   <td class="px-4 py-3 capitalize">
                     {{ getMonthName(telat.iuran?.bulan) }}
@@ -255,14 +266,17 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 import { useRoute } from "vue-router";
 import { toast } from "vue3-toastify";
 import SiswaService from "@/api/siswa";
 import TransaksiService from "@/api/transaksi";
 import KeterlambatanService from "@/api/keterlambatan";
 import IuranService from "@/api/iuran";
-import { ChevronLeftIcon, UserIcon } from "@heroicons/vue/24/outline";
+import anime from "animejs";
+import { 
+  ChevronLeftIcon, UserIcon, UsersIcon, CurrencyDollarIcon, ClockIcon 
+} from "@heroicons/vue/24/outline";
 import { useAuthStore } from "@/stores/auth";
 import dayjs from "dayjs";
 
@@ -311,7 +325,6 @@ const getStatusClass = (status) => {
 const totalIuranCount = computed(() => allIuranList.value.length);
 
 const paidIuranCount = computed(() => {
-  // Cek iuran yang udah confirmed (unik berdasarkan iuran_id)
   const paidIuranIds = transaksiList.value
     .filter((t) => t.status === "confirmed")
     .map((t) => t.iuran_id);
@@ -326,23 +339,38 @@ const paymentProgress = computed(() => {
   );
 });
 
+// Animasi Masuk (Slide kiri & kanan)
+const triggerAnimations = () => {
+  anime({
+    targets: '.detail-left-col',
+    translateX: [-50, 0],
+    opacity: [0, 1],
+    duration: 800,
+    easing: 'easeOutQuart'
+  });
+
+  anime({
+    targets: '.detail-right-col',
+    translateX: [50, 0],
+    opacity: [0, 1],
+    delay: anime.stagger(150, { start: 200 }),
+    duration: 800,
+    easing: 'easeOutQuart'
+  });
+};
+
 const fetchDetail = async () => {
   loading.value = true;
   try {
-    // Fetch Siswa Detail
     const resSiswa = await SiswaService.getById(siswaId);
     siswaData.value = resSiswa.data.data;
 
-    // Fetch Transaksi by Siswa
     const resTrx = await TransaksiService.getBySiswa(siswaId);
     transaksiList.value = resTrx.data.data.transaksi || [];
 
-    // Fetch Keterlambatan by Siswa
     const resTelat = await KeterlambatanService.getBySiswa(siswaId);
-    // Karena backend getbySiswa return object { siswa, total_keterlambatan, keterlambatan: [...] }
     keterlambatanList.value = resTelat.data.data.keterlambatan || [];
 
-    // TAMBAHAN: Fetch Iuran by Kelas Siswa buat ngitung progress
     if (siswaData.value.kelas_id) {
       const resIuran = await IuranService.getByKelas(siswaData.value.kelas_id);
       allIuranList.value = resIuran.data.data.iuran || [];
@@ -352,6 +380,8 @@ const fetchDetail = async () => {
     toast.error("Gagal memuat detail siswa");
   } finally {
     loading.value = false;
+    await nextTick();
+    triggerAnimations();
   }
 };
 

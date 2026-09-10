@@ -5,7 +5,7 @@
     </div>
 
     <div v-else-if="dashboardData">
-      <!-- Stat cards -->
+      <!-- Stat cards (White Clean, Scale Up Animation) -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         <div class="stat-card bg-white border border-zinc-200 rounded-xl p-5">
           <div class="flex items-center justify-between mb-4">
@@ -13,7 +13,7 @@
               <CurrencyDollarIcon class="w-5 h-5 text-blue-600" />
             </div>
           </div>
-          <p class="text-2xl font-bold text-zinc-900">Rp {{ formatRupiah(dashboardData.statistik.total_kas) }}</p>
+          <p class="text-2xl font-bold text-zinc-900">Rp {{ formatRupiah(animatedKas) }}</p>
           <p class="text-zinc-500 text-sm mt-1">Total Saldo Kas</p>
         </div>
 
@@ -23,7 +23,7 @@
               <UsersIcon class="w-5 h-5 text-emerald-600" />
             </div>
           </div>
-          <p class="text-2xl font-bold text-zinc-900">{{ dashboardData.statistik.total_siswa }}</p>
+          <p class="text-2xl font-bold text-zinc-900">{{ animatedSiswa }}</p>
           <p class="text-zinc-500 text-sm mt-1">Total Siswa</p>
         </div>
 
@@ -33,7 +33,7 @@
               <ExclamationCircleIcon class="w-5 h-5 text-red-600" />
             </div>
           </div>
-          <p class="text-2xl font-bold text-zinc-900">{{ dashboardData.statistik.siswa_telat }}</p>
+          <p class="text-2xl font-bold text-zinc-900">{{ animatedTelat }}</p>
           <p class="text-zinc-500 text-sm mt-1">Siswa Telat Bayar</p>
         </div>
 
@@ -43,12 +43,12 @@
               <ChartBarIcon class="w-5 h-5 text-amber-600" />
             </div>
           </div>
-          <p class="text-2xl font-bold text-zinc-900">{{ dashboardData.statistik.total_iuran_aktif }}</p>
+          <p class="text-2xl font-bold text-zinc-900">{{ animatedIuran }}</p>
           <p class="text-zinc-500 text-sm mt-1">Iuran Aktif</p>
         </div>
       </div>
 
-      <!-- Charts row -->
+      <!-- Charts row (Slide from Left) -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5">
         <!-- Revenue chart -->
         <div class="chart-card lg:col-span-2 bg-white border border-zinc-200 rounded-xl p-6">
@@ -99,7 +99,7 @@
         </div>
       </div>
 
-      <!-- Bottom row -->
+      <!-- Bottom row (Slide from Right) -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5">
         <!-- Top Tunggakan -->
         <div class="bottom-card bg-white border border-zinc-200 rounded-xl p-6">
@@ -107,7 +107,6 @@
           <p class="text-zinc-400 text-xs mb-2">Siswa telat bayar & punya denda</p>
           <div class="flex flex-col divide-y divide-zinc-100">
             <div v-for="telat in dashboardData.siswa_telat" :key="telat.id" class="flex items-center gap-3 py-3">
-              <!-- Avatar Profile -->
               <img v-if="telat.siswa?.user?.foto" :src="telat.siswa.user.foto" class="w-9 h-9 rounded-full object-cover shrink-0 border border-zinc-100" alt="foto" />
               <div v-else class="w-9 h-9 rounded-lg flex items-center justify-center bg-red-50 text-red-600 font-semibold text-xs shrink-0">
                 {{ telat.siswa?.user?.name?.charAt(0) || "?" }}
@@ -156,7 +155,6 @@
           <p class="text-zinc-400 text-xs mb-2">Aktivitas terakhir</p>
           <div class="flex flex-col divide-y divide-zinc-100">
             <div v-for="o in dashboardData.transaksi_terbaru" :key="o.id" class="flex items-center gap-3 py-3">
-              <!-- Avatar Profile -->
               <img v-if="o.siswa?.user?.foto" :src="o.siswa.user.foto" class="w-9 h-9 rounded-full object-cover shrink-0 border border-zinc-100" alt="foto" />
               <div v-else class="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-50 text-zinc-600 font-semibold text-xs shrink-0 border border-zinc-100">
                 {{ o.siswa?.user?.name?.charAt(0) || "?" }}
@@ -205,6 +203,12 @@ const statusChart = ref(null);
 let revenueChartInstance = null;
 let statusChartInstance = null;
 
+// State buat Animasi Count-Up
+const animatedKas = ref(0);
+const animatedSiswa = ref(0);
+const animatedTelat = ref(0);
+const animatedIuran = ref(0);
+
 const formatRupiah = (angka) => {
   return new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(angka || 0);
 };
@@ -219,32 +223,63 @@ const totalTransaksi = computed(() => {
   return s.lunas + s.pending + s.ditolak;
 });
 
+// Animasi Muncul (Variasi Arah)
 const triggerAnimations = () => {
+  // 1. Stat Cards: Scale up (membesar)
   anime({
     targets: '.stat-card',
-    translateY: [20, 0],
+    scale: [0.8, 1],
     opacity: [0, 1],
     delay: anime.stagger(100, { start: 0 }),
-    duration: 600,
-    easing: 'easeOutQuad'
+    duration: 700,
+    easing: 'easeOutBack'
   });
 
+  // 2. Chart Cards: Slide dari kiri
   anime({
     targets: '.chart-card',
-    translateY: [30, 0],
+    translateX: [-50, 0],
     opacity: [0, 1],
     delay: anime.stagger(150, { start: 300 }),
-    duration: 700,
-    easing: 'easeOutQuad'
+    duration: 800,
+    easing: 'easeOutQuart'
   });
 
+  // 3. Bottom Cards: Slide dari kanan
   anime({
     targets: '.bottom-card',
-    translateY: [30, 0],
+    translateX: [50, 0],
     opacity: [0, 1],
     delay: anime.stagger(150, { start: 500 }),
-    duration: 700,
-    easing: 'easeOutQuad'
+    duration: 800,
+    easing: 'easeOutQuart'
+  });
+};
+
+// Animasi Angka Naik (Count-Up)
+const animateStats = () => {
+  const stats = dashboardData.value.statistik;
+  
+  const counters = [
+    { ref: animatedKas, target: stats.total_kas },
+    { ref: animatedSiswa, target: stats.total_siswa },
+    { ref: animatedTelat, target: stats.siswa_telat },
+    { ref: animatedIuran, target: stats.total_iuran_aktif }
+  ];
+
+  counters.forEach((counter, index) => {
+    const obj = { val: 0 };
+    anime({
+      targets: obj,
+      val: counter.target,
+      round: 1, // Biar gak ada koma di belakang
+      duration: 1500,
+      delay: index * 150,
+      easing: 'easeOutExpo',
+      update: () => {
+        counter.ref.value = obj.val;
+      }
+    });
   });
 };
 
@@ -263,6 +298,7 @@ const fetchDashboard = async () => {
     }
 
     triggerAnimations();
+    animateStats(); // Jalankan animasi angka
 
   } catch (error) {
     console.error(error);

@@ -5,7 +5,7 @@
     </div>
 
     <div v-else-if="dashboardData">
-      <!-- Header Profil Singkat -->
+      <!-- Header Profil Singkat (Slide from Top) -->
       <div
         class="siswa-header bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4"
       >
@@ -56,7 +56,7 @@
             </span>
           </div>
 
-          <!-- Progress Bar Tagihan -->
+          <!-- Progress Bar Tagihan (Animated Width) -->
           <div class="w-full sm:w-48">
             <div class="flex justify-between items-center mb-1">
               <span class="text-[10px] font-medium text-zinc-500">Progress Tagihan</span>
@@ -64,16 +64,16 @@
             </div>
             <div class="w-full h-2 bg-zinc-100 rounded-full overflow-hidden">
               <div 
-                class="h-full rounded-full transition-all duration-500" 
+                class="h-full rounded-full transition-all duration-1000 ease-out" 
                 :class="paymentProgress === 100 ? 'bg-emerald-500' : 'bg-blue-600'"
-                :style="{ width: paymentProgress + '%' }"
+                :style="{ width: animatedProgress + '%' }"
               ></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Stat Cards Siswa -->
+      <!-- Stat Cards Siswa (Scale Up) -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mt-5">
         <div class="stat-card bg-white border border-zinc-200 rounded-xl p-5">
           <div class="flex items-center justify-between mb-4">
@@ -84,7 +84,7 @@
             </div>
           </div>
           <p class="text-2xl font-bold text-zinc-900">
-            Rp {{ formatRupiah(dashboardData.statistik.total_bayar) }}
+            Rp {{ formatRupiah(animatedBayar) }}
           </p>
           <p class="text-zinc-500 text-sm mt-1">Total Sudah Dibayar</p>
         </div>
@@ -98,7 +98,7 @@
             </div>
           </div>
           <p class="text-2xl font-bold text-zinc-900">
-            {{ dashboardData.statistik.total_transaksi }}
+            {{ animatedTransaksi }}
           </p>
           <p class="text-zinc-500 text-sm mt-1">Transaksi Sukses</p>
         </div>
@@ -112,7 +112,7 @@
             </div>
           </div>
           <p class="text-2xl font-bold text-zinc-900">
-            {{ dashboardData.statistik.transaksi_pending }}
+            {{ animatedPending }}
           </p>
           <p class="text-zinc-500 text-sm mt-1">Transaksi Pending</p>
         </div>
@@ -126,13 +126,13 @@
             </div>
           </div>
           <p class="text-2xl font-bold text-zinc-900">
-            Rp {{ formatRupiah(dashboardData.statistik.total_denda) }}
+            Rp {{ formatRupiah(animatedDenda) }}
           </p>
           <p class="text-zinc-500 text-sm mt-1">Total Denda</p>
         </div>
       </div>
 
-      <!-- Chart & Status Iuran -->
+      <!-- Chart & Status Iuran (Slide from Left) -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5">
         <!-- Chart Pembayaran -->
         <div
@@ -240,7 +240,7 @@
         </div>
       </div>
 
-      <!-- Riwayat Transaksi Siswa -->
+      <!-- Riwayat Transaksi Siswa (Slide from Right) -->
       <div
         class="history-card bg-white border border-zinc-200 rounded-xl p-6 mt-5"
       >
@@ -325,6 +325,13 @@ const loading = ref(true);
 const paymentChart = ref(null);
 let chartInstance = null;
 
+// State buat Animasi Count-Up & Progress
+const animatedBayar = ref(0);
+const animatedTransaksi = ref(0);
+const animatedPending = ref(0);
+const animatedDenda = ref(0);
+const animatedProgress = ref(0);
+
 const formatRupiah = (angka) => {
   return new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(
     angka || 0,
@@ -344,41 +351,85 @@ const paymentProgress = computed(() => {
   return Math.min(100, Math.round((paidIuran / totalIuran) * 100));
 });
 
-// --- Anime.js Stagger Animation ---
+// Animasi Muncul (Variasi Arah)
 const triggerAnimations = () => {
+  // 1. Header: Slide dari atas
   anime({
-    targets: ".siswa-header",
-    translateY: [20, 0],
+    targets: '.siswa-header',
+    translateY: [-20, 0],
     opacity: [0, 1],
     duration: 600,
-    easing: "easeOutQuad",
+    easing: 'easeOutQuart'
   });
 
+  // 2. Stat Cards: Scale up (membesar)
   anime({
-    targets: ".stat-card",
-    translateY: [20, 0],
+    targets: '.stat-card',
+    scale: [0.8, 1],
     opacity: [0, 1],
-    delay: anime.stagger(100, { start: 100 }),
-    duration: 600,
-    easing: "easeOutQuad",
-  });
-
-  anime({
-    targets: ".chart-card",
-    translateY: [30, 0],
-    opacity: [0, 1],
-    delay: anime.stagger(150, { start: 300 }),
+    delay: anime.stagger(100, { start: 200 }),
     duration: 700,
-    easing: "easeOutQuad",
+    easing: 'easeOutBack'
   });
 
+  // 3. Chart Cards: Slide dari kiri
   anime({
-    targets: ".history-card",
-    translateY: [30, 0],
+    targets: '.chart-card',
+    translateX: [-50, 0],
     opacity: [0, 1],
-    delay: anime.stagger(150, { start: 500 }),
-    duration: 700,
-    easing: "easeOutQuad",
+    delay: anime.stagger(150, { start: 400 }),
+    duration: 800,
+    easing: 'easeOutQuart'
+  });
+
+  // 4. History Card: Slide dari kanan
+  anime({
+    targets: '.history-card',
+    translateX: [50, 0],
+    opacity: [0, 1],
+    delay: 600,
+    duration: 800,
+    easing: 'easeOutQuart'
+  });
+};
+
+// Animasi Angka Naik (Count-Up)
+const animateStats = () => {
+  const stats = dashboardData.value.statistik;
+  
+  const counters = [
+    { ref: animatedBayar, target: stats.total_bayar },
+    { ref: animatedTransaksi, target: stats.total_transaksi },
+    { ref: animatedPending, target: stats.transaksi_pending },
+    { ref: animatedDenda, target: stats.total_denda }
+  ];
+
+  counters.forEach((counter, index) => {
+    const obj = { val: 0 };
+    anime({
+      targets: obj,
+      val: counter.target,
+      round: 1,
+      duration: 1500,
+      delay: 300 + (index * 150),
+      easing: 'easeOutExpo',
+      update: () => {
+        counter.ref.value = obj.val;
+      }
+    });
+  });
+
+  // Animasi Progress Bar
+  anime({
+    targets: animatedProgress,
+    value: paymentProgress.value,
+    round: 1,
+    duration: 1500,
+    delay: 500,
+    easing: 'easeOutExpo',
+    update: () => {
+      // animejs update ref value
+    }
   });
 };
 
@@ -436,6 +487,8 @@ const fetchDashboard = async () => {
     await nextTick(); // Tunggu DOM render
 
     triggerAnimations();
+    animateStats(); // Jalankan count-up & progress bar
+    
     if (dashboardData.value?.grafik) {
       renderChart();
     }
