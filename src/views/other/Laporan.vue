@@ -251,6 +251,7 @@
 
 <script setup>
 import { ref, computed, onMounted, nextTick } from "vue";
+import { useAuthStore } from "@/stores/auth";
 import { toast } from "vue3-toastify";
 import LaporanService from "@/api/laporan";
 import KelasService from "@/api/kelas";
@@ -266,6 +267,7 @@ import dayjs from "dayjs";
 
 Chart.register(...registerables);
 
+const authStore = useAuthStore();
 const loading = ref(false);
 const exporting = ref(false);
 const kelasList = ref([]);

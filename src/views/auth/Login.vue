@@ -5,7 +5,7 @@
   >
     <!-- Card Utama -->
     <div
-      class="w-full max-w-5xl bg-white rounded-2xl shadow-xl border border-zinc-200 overflow-hidden grid grid-cols-1 lg:grid-cols-5"
+      class="w-full max-w-5xl bg-white rounded-4xl shadow-xl border border-zinc-200 overflow-hidden grid grid-cols-1 lg:grid-cols-5"
     >
       <!-- Kiri: Form Login (2 Kolom) -->
       <div
@@ -145,7 +145,7 @@
               <button
                 type="submit"
                 :disabled="loading"
-                class="w-full bg-zinc-900 text-white py-2.5 rounded-lg font-semibold text-sm hover:bg-zinc-800 transition flex items-center justify-center gap-2 disabled:bg-zinc-400 disabled:cursor-not-allowed"
+                class="w-full bg-linear-to-b from-[#2a3f8d] to-[#0e39e3] text-white py-2.5 rounded-lg font-semibold text-sm transition flex items-center justify-center gap-2 disabled:bg-zinc-400 disabled:cursor-not-allowed"
               >
                 <svg
                   v-if="loading"
@@ -186,7 +186,7 @@
         <!-- Background Image -->
         <img
           src="@/assets/klasify-transaksi.png"
-          class="absolute inset-0 h-full w-full object-cover opacity-60"
+          class="absolute inset-0 h-full w-full object-cover opacity-90"
           alt="background"
         />
         <!-- Overlay Content -->
@@ -259,9 +259,9 @@ const errors = reactive({
 // --- Notif Selamat Datang / Logout ---
 onMounted(() => {
   if (route.query.logout === 'true') {
-    toast.info("Anda berhasil keluar. Sampai jumpa lagi!");
+    toast.success("Anda berhasil keluar. Sampai jumpa lagi!");
   } else {
-    toast.success("Selamat datang di Klasify!");
+    toast.info("Halo, Selamat datang di Klasify!");
   }
 });
 
