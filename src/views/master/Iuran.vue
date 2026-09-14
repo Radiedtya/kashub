@@ -25,20 +25,37 @@
     </div>
 
     <!-- Chart Card -->
-    <div class="iuran-chart-card bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
+    <div
+      class="iuran-chart-card bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6"
+    >
       <div class="relative w-40 h-40 shrink-0">
         <canvas ref="iuranChart"></canvas>
-        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span class="text-xl font-bold text-zinc-900">{{ iuranList.length }}</span>
-          <span class="text-zinc-400 text-[10px] uppercase tracking-wide">Total Iuran</span>
+        <div
+          class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+        >
+          <span class="text-xl font-bold text-zinc-900">{{
+            iuranList.length
+          }}</span>
+          <span class="text-zinc-400 text-[10px] uppercase tracking-wide"
+            >Total Iuran</span
+          >
         </div>
       </div>
       <div class="flex-1 w-full grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <div v-for="(label, index) in chartData.labels" :key="label" class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
-          <span class="w-3 h-3 rounded-full" :style="{ backgroundColor: chartData.colors[index] }"></span>
+        <div
+          v-for="(label, index) in chartData.labels"
+          :key="label"
+          class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg"
+        >
+          <span
+            class="w-3 h-3 rounded-full"
+            :style="{ backgroundColor: chartData.colors[index] }"
+          ></span>
           <div class="flex-1">
             <p class="text-xs text-zinc-500">{{ label }}</p>
-            <p class="text-lg font-bold text-zinc-800">{{ chartData.data[index] }}</p>
+            <p class="text-lg font-bold text-zinc-800">
+              {{ chartData.data[index] }}
+            </p>
           </div>
         </div>
       </div>
@@ -231,7 +248,9 @@
                   </span>
                 </template>
 
-                <span v-else class="text-xs text-zinc-300 italic">Tidak ada aksi tersedia</span>
+                <span v-else class="text-xs text-zinc-300 italic"
+                  >Tidak ada aksi tersedia</span
+                >
               </div>
             </div>
           </div>
@@ -536,25 +555,25 @@
                       />
                     </div>
                   </div>
+
+                  <!-- Metode Pembayaran (Disabled Input - Cash Only) -->
                   <div class="md:col-span-2">
                     <label class="text-xs text-zinc-600 font-medium"
                       >Metode Pembayaran</label
                     >
                     <div class="relative mt-1">
-                      <CreditCardIcon
+                      <BanknotesIcon
                         class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
                       />
-                      <select
-                        v-model="payForm.metode"
-                        required
-                        class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none bg-white appearance-none capitalize"
-                      >
-                        <option value="transfer">Transfer Bank</option>
-                        <option value="cash">Tunai (Cash)</option>
-                        <option value="qris">QRIS / E-Wallet</option>
-                      </select>
+                      <input
+                        type="text"
+                        value="Tunai (Cash)"
+                        disabled
+                        class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm bg-zinc-50 cursor-not-allowed capitalize"
+                      />
                     </div>
                   </div>
+
                   <div class="md:col-span-2">
                     <label class="text-xs text-zinc-600 font-medium"
                       >Link Foto Bukti Bayar (Opsional)</label
@@ -594,7 +613,7 @@
                         v-model="payForm.keterangan"
                         rows="2"
                         class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none resize-none"
-                        placeholder="Contoh: Sudah transfer via BCA"
+                        placeholder="Contoh: Bayar tunai di kelas"
                       ></textarea>
                     </div>
                   </div>
@@ -635,7 +654,7 @@ import IuranService from "@/api/iuran";
 import TransaksiService from "@/api/transaksi";
 import KelasService from "@/api/kelas";
 import anime from "animejs";
-import { Chart, registerables } from "chart.js"; // <-- Import Chart.js
+import { Chart, registerables } from "chart.js";
 import {
   TransitionRoot,
   TransitionChild,
@@ -654,7 +673,6 @@ import {
   AcademicCapIcon,
   CalendarDaysIcon,
   CurrencyDollarIcon,
-  CreditCardIcon,
   LinkIcon,
   ChatBubbleLeftIcon,
 } from "@heroicons/vue/24/outline";
@@ -688,7 +706,7 @@ const payForm = reactive({
   iuran_bulan: "",
   tanggal_bayar: dayjs().format("YYYY-MM-DD"),
   jumlah: 0,
-  metode: "transfer",
+  metode: "tunai",
   bukti_bayar: "",
   keterangan: "",
 });
@@ -842,29 +860,32 @@ const getPaymentStatus = (iuranId) => {
 
 // Computed buat Chart Data
 const chartData = computed(() => {
-  if (authStore.role === 'siswa') {
-    let lunas = 0, pending = 0, belum_bayar = 0;
-    iuranList.value.forEach(i => {
+  if (authStore.role === "siswa") {
+    let lunas = 0,
+      pending = 0,
+      belum_bayar = 0;
+    iuranList.value.forEach((i) => {
       const status = getPaymentStatus(i.id).status;
-      if (status === 'confirmed') lunas++;
-      else if (status === 'pending') pending++;
+      if (status === "confirmed") lunas++;
+      else if (status === "pending") pending++;
       else belum_bayar++;
     });
     return {
-      labels: ['Lunas', 'Pending', 'Belum Bayar'],
+      labels: ["Lunas", "Pending", "Belum Bayar"],
       data: [lunas, pending, belum_bayar],
-      colors: ['#10b981', '#f59e0b', '#e4e4e7']
+      colors: ["#10b981", "#f59e0b", "#e4e4e7"],
     };
   } else {
-    let active = 0, inactive = 0;
-    iuranList.value.forEach(i => {
+    let active = 0,
+      inactive = 0;
+    iuranList.value.forEach((i) => {
       if (i.is_active) active++;
       else inactive++;
     });
     return {
-      labels: ['Aktif', 'Nonaktif'],
+      labels: ["Aktif", "Nonaktif"],
       data: [active, inactive],
-      colors: ['#3b82f6', '#e4e4e7']
+      colors: ["#3b82f6", "#e4e4e7"],
     };
   }
 });
@@ -874,20 +895,22 @@ const renderChart = () => {
 
   if (iuranChart.value) {
     chartInstance = new Chart(iuranChart.value, {
-      type: 'doughnut',
+      type: "doughnut",
       data: {
         labels: chartData.value.labels,
-        datasets: [{
-          data: chartData.value.data,
-          backgroundColor: chartData.value.colors,
-          borderWidth: 0,
-          hoverOffset: 4
-        }]
+        datasets: [
+          {
+            data: chartData.value.data,
+            backgroundColor: chartData.value.colors,
+            borderWidth: 0,
+            hoverOffset: 4,
+          },
+        ],
       },
       options: {
         cutout: "70%",
-        plugins: { legend: { display: false }, tooltip: { enabled: true } }
-      }
+        plugins: { legend: { display: false }, tooltip: { enabled: true } },
+      },
     });
   }
 };
@@ -896,7 +919,7 @@ const filteredIuran = computed(() => {
   let list = iuranList.value;
 
   // FIX: Kalau yang login Guru, filter cuma kelasnya dia aja
-  if (authStore.role === 'guru' && authStore.user?.kelas_id) {
+  if (authStore.role === "guru" && authStore.user?.kelas_id) {
     list = list.filter((i) => i.kelas_id === authStore.user.kelas_id);
   }
 
@@ -945,7 +968,7 @@ const openCreateModal = () => {
   isEditMode.value = false;
   Object.assign(form, {
     // FIX: Auto-fill kelas guru
-    kelas_id: authStore.role === 'guru' ? authStore.user.kelas_id : "",
+    kelas_id: authStore.role === "guru" ? authStore.user.kelas_id : "",
     bulan: "",
     tahun: new Date().getFullYear(),
     nominal: "",
@@ -1019,7 +1042,7 @@ const openPayModal = (iuran) => {
     iuran_bulan: `${getMonthName(iuran.bulan)} ${iuran.tahun}`,
     tanggal_bayar: dayjs().format("YYYY-MM-DD"),
     jumlah: iuran.nominal,
-    metode: "transfer",
+    metode: "tunai",
     bukti_bayar: "",
     keterangan: "",
   });
