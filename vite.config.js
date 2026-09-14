@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {
-      '@': new URL('./src', import.meta.url).pathname, // Fix buat Vite versi baru tanpa __dirname
+      '@': new URL('./src', import.meta.url).pathname,
     },
   },
   server: {
@@ -20,4 +20,7 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    chunkSizeWarningLimit: 1000,
+  }
 })

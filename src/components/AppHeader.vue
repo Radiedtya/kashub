@@ -113,9 +113,10 @@
                     class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 overflow-hidden border border-gray-100"
                     :class="!notif.sender ? getIconBg(notif.tipe) : 'bg-gray-100'"
                   >
-                    <img v-if="notif.sender?.foto" :src="notif.sender.foto" class="w-full h-full object-cover" alt="foto" />
+                    <img v-if="notif.sender?.foto" :src="notif.sender.foto" loading="lazy" class="w-full h-full object-cover" alt="foto" />
                     <div v-else-if="notif.sender" class="w-full h-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold text-[10px]">
                       {{ notif.sender?.name?.charAt(0) || 'S' }}
+                      loading="lazy"
                     </div>
                     <BellIcon v-else class="w-4 h-4" :class="getIconColor(notif.tipe)" />
                   </div>
@@ -153,6 +154,7 @@
           <img
             v-if="authStore.user?.foto"
             :src="authStore.user.foto"
+            loading="lazy"
             class="w-10 h-10 md:w-11 md:h-11 rounded-full object-cover border border-slate-200"
             alt="foto profil"
           />

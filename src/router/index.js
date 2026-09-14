@@ -2,34 +2,11 @@ import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import AppLayout from "@/layouts/AppLayout.vue";
 
-// Auth
-import Login from "@/views/auth/Login.vue";
-
-// Dashboard Main
-import Dashboard from "@/views/dashboard/Dashboard.vue";
-
-// Master
-import Profile from "@/views/other/Profile.vue";
-import Siswa from "@/views/master/Siswa.vue";
-import SiswaDetail from "@/views/master/SiswaDetail.vue";
-import Kelas from "@/views/master/Kelas.vue";
-import Iuran from "@/views/master/Iuran.vue";
-
-// Keuangan
-import Pengeluaran from "@/views/keuangan/Pengeluaran.vue";
-import Transaksi from "@/views/keuangan/Transaksi.vue";
-import Keterlambatan from "@/views/keuangan/Keterlambatan.vue";
-
-// Other
-import Pengaturan from "@/views/other/Pengaturan.vue";
-import Notifikasi from "@/views/other/Notifikasi.vue";
-import Laporan from "@/views/other/Laporan.vue";
-
 const routes = [
   {
     path: "/login",
     name: "login",
-    component: Login,
+    component: () => import("@/views/auth/Login.vue"),
     meta: { requiresAuth: false },
   },
   {
@@ -40,73 +17,73 @@ const routes = [
       {
         path: "",
         name: "dashboard",
-        component: Dashboard,
+        component: () => import("@/views/dashboard/Dashboard.vue"),
         meta: { title: "Dashboard" },
       },
       {
         path: "profile",
         name: "profile",
-        component: Profile,
+        component: () => import("@/views/other/Profile.vue"),
         meta: { title: "Profile Saya" },
       },
       {
         path: "siswa",
         name: "siswa",
-        component: Siswa,
+        component: () => import("@/views/master/Siswa.vue"),
         meta: { title: "Data Siswa" },
       },
       {
         path: "siswa/:id",
         name: "siswa-detail",
-        component: SiswaDetail,
+        component: () => import("@/views/master/SiswaDetail.vue"),
         meta: { title: "Detail Siswa" },
       },
       {
         path: "kelas",
         name: "kelas",
-        component: Kelas,
+        component: () => import("@/views/master/Kelas.vue"),
         meta: { title: "Data Kelas" },
       },
       {
         path: "iuran",
         name: "iuran",
-        component: Iuran,
+        component: () => import("@/views/master/Iuran.vue"),
         meta: { title: "Iuran" },
       },
       {
         path: "transaksi",
         name: "transaksi",
-        component: Transaksi,
+        component: () => import("@/views/keuangan/Transaksi.vue"),
         meta: { title: "Transaksi" },
       },
       {
         path: "pengeluaran",
         name: "pengeluaran",
-        component: Pengeluaran,
+        component: () => import("@/views/keuangan/Pengeluaran.vue"),
         meta: { title: "Pengeluaran" },
       },
       {
         path: "notifikasi",
         name: "notifikasi",
-        component: Notifikasi,
+        component: () => import("@/views/other/Notifikasi.vue"),
         meta: { title: "Notifikasi" },
       },
       {
         path: "laporan",
         name: "laporan",
-        component: Laporan,
+        component: () => import("@/views/other/Laporan.vue"),
         meta: { title: "Laporan" },
       },
       {
         path: "pengaturan",
         name: "pengaturan",
-        component: Pengaturan,
+        component: () => import("@/views/other/Pengaturan.vue"),
         meta: { title: "Pengaturan" },
       },
       {
         path: "keterlambatan",
         name: "keterlambatan",
-        component: Keterlambatan,
+        component: () => import("@/views/keuangan/Keterlambatan.vue"),
         meta: { title: "Keterlambatan" },
       },
     ],
