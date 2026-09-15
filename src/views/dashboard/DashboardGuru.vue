@@ -3,7 +3,7 @@
     <!-- Skeleton Loader -->
     <div v-if="loading" class="space-y-6 animate-pulse">
       <!-- Skeleton Stat Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">pi
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         <div
           v-for="i in 4"
           :key="i"

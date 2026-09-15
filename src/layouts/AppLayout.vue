@@ -20,7 +20,7 @@
 
       <main
         ref="mainContent"
-        class="flex-1 overflow-y-auto px-4 md:px-10 pb-10 lenis-scroll"
+        class="flex-1 overflow-y-auto px-4 md:px-10 pb-10 lenis-scroll scrollbar-none"
       >
         <div ref="contentWrapper" class="opacity-0">
           <router-view />
