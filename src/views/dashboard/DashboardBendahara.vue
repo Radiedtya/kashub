@@ -56,72 +56,65 @@
     </div>
 
     <div v-else-if="dashboardData">
-      <!-- Stat Cards (White Clean, Scale Up Animation) -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         <section
-          class="stat-card bg-white border border-zinc-200 rounded-xl p-5"
+          class="stat-card group relative overflow-hidden rounded-xl p-5 bg-linear-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20"
           aria-label="Total Saldo Kas"
         >
-          <div class="flex items-center justify-between mb-4">
-            <div
-              class="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-50 border border-zinc-100"
-            >
-              <CurrencyDollarIcon class="w-5 h-5 text-blue-600" />
-            </div>
+          <CurrencyDollarIcon
+            class="absolute -right-4 -bottom-4 w-28 h-28 text-white/15 rotate-[-8deg] pointer-events-none"
+          />
+          <div class="relative z-10">
+            <p class="text-blue-100 text-sm mt-1">Total Saldo Kas</p>
+            <p class="text-2xl font-bold text-white">
+              Rp {{ formatRupiah(animatedKas) }}
+            </p>
           </div>
-          <p class="text-2xl font-bold text-zinc-900">
-            Rp {{ formatRupiah(animatedKas) }}
-          </p>
-          <p class="text-zinc-600 text-sm mt-1">Total Saldo Kas</p>
         </section>
 
         <section
-          class="stat-card bg-white border border-zinc-200 rounded-xl p-5"
+          class="stat-card group relative overflow-hidden rounded-xl p-5 bg-linear-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/20"
           aria-label="Pemasukan Bulan Ini"
         >
-          <div class="flex items-center justify-between mb-4">
-            <div
-              class="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-50 border border-zinc-100"
-            >
-              <ArrowTrendingUpIcon class="w-5 h-5 text-emerald-600" />
-            </div>
+          <ArrowTrendingUpIcon
+            class="absolute -right-4 -bottom-4 w-28 h-28 text-white/15 rotate-[-8deg] pointer-events-none"
+          />
+          <div class="relative z-10">
+            <p class="text-emerald-100 text-sm mt-1">Pemasukan Bulan Ini</p>
+            <p class="text-2xl font-bold text-white">
+              Rp {{ formatRupiah(animatedMasuk) }}
+            </p>
           </div>
-          <p class="text-2xl font-bold text-zinc-900">
-            Rp {{ formatRupiah(animatedMasuk) }}
-          </p>
-          <p class="text-zinc-600 text-sm mt-1">Pemasukan Bulan Ini</p>
         </section>
 
         <section
-          class="stat-card bg-white border border-zinc-200 rounded-xl p-5"
+          class="stat-card group relative overflow-hidden rounded-xl p-5 bg-linear-to-br from-red-500 to-red-600 shadow-lg shadow-red-500/20"
           aria-label="Pengeluaran Bulan Ini"
         >
-          <div class="flex items-center justify-between mb-4">
-            <div
-              class="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-50 border border-zinc-100"
-            >
-              <ArrowTrendingDownIcon class="w-5 h-5 text-red-600" />
-            </div>
+          <ArrowTrendingDownIcon
+            class="absolute -right-4 -bottom-4 w-28 h-28 text-white/15 rotate-[-8deg] pointer-events-none"
+          />
+          <div class="relative z-10">
+            <p class="text-red-100 text-sm mt-1">Pengeluaran Bulan Ini</p>
+            <p class="text-2xl font-bold text-white">
+              Rp {{ formatRupiah(animatedKeluar) }}
+            </p>
           </div>
-          <p class="text-2xl font-bold text-zinc-900">
-            Rp {{ formatRupiah(animatedKeluar) }}
-          </p>
-          <p class="text-zinc-600 text-sm mt-1">Pengeluaran Bulan Ini</p>
         </section>
 
         <section
-          class="stat-card bg-white border border-zinc-200 rounded-xl p-5"
+          class="stat-card group relative overflow-hidden rounded-xl p-5 bg-linear-to-br from-amber-500 to-amber-600 shadow-lg shadow-amber-500/20"
           aria-label="Transaksi Perlu Konfirmasi"
         >
-          <div class="flex items-center justify-between mb-4">
-            <div
-              class="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-50 border border-zinc-100"
-            >
-              <ClockIcon class="w-5 h-5 text-amber-600" />
-            </div>
+          <ClockIcon
+            class="absolute -right-4 -bottom-4 w-28 h-28 text-white/15 rotate-[-8deg] pointer-events-none"
+          />
+          <div class="relative z-10">
+            <p class="text-amber-100 text-sm mt-1">
+              Transaksi Perlu Konfirmasi
+            </p>
+            <p class="text-2xl font-bold text-white">{{ animatedPending }}</p>
           </div>
-          <p class="text-2xl font-bold text-zinc-900">{{ animatedPending }}</p>
-          <p class="text-zinc-600 text-sm mt-1">Transaksi Perlu Konfirmasi</p>
         </section>
       </div>
 

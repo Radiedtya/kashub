@@ -84,65 +84,57 @@
       <!-- Stat cards (White Clean, Scale Up Animation) -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         <section
-          class="stat-card bg-white border border-zinc-200 rounded-xl p-5"
+          class="stat-card group relative overflow-hidden rounded-xl p-5 bg-linear-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20"
           aria-label="Total Saldo Kas"
         >
-          <div class="flex items-center justify-between mb-4">
-            <div
-              class="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-50 border border-zinc-100"
-            >
-              <CurrencyDollarIcon class="w-5 h-5 text-blue-600" />
-            </div>
+          <CurrencyDollarIcon
+            class="absolute -right-4 -bottom-4 w-28 h-28 text-white/15 rotate-[-8deg] pointer-events-none"
+          />
+          <div class="relative z-10">
+            <p class="text-blue-100 text-sm mt-1">Total Saldo Kas</p>
+            <p class="text-2xl font-bold text-white">
+              Rp {{ formatRupiah(animatedKas) }}
+            </p>
           </div>
-          <p class="text-2xl font-bold text-zinc-900">
-            Rp {{ formatRupiah(animatedKas) }}
-          </p>
-          <p class="text-zinc-600 text-sm mt-1">Total Saldo Kas</p>
         </section>
 
         <section
-          class="stat-card bg-white border border-zinc-200 rounded-xl p-5"
+          class="stat-card group relative overflow-hidden rounded-xl p-5 bg-linear-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/20"
           aria-label="Total Siswa"
         >
-          <div class="flex items-center justify-between mb-4">
-            <div
-              class="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-50 border border-zinc-100"
-            >
-              <UsersIcon class="w-5 h-5 text-emerald-600" />
-            </div>
+          <UsersIcon
+            class="absolute -right-4 -bottom-4 w-28 h-28 text-white/15 rotate-[-8deg] pointer-events-none"
+          />
+          <div class="relative z-10">
+            <p class="text-emerald-100 text-sm mt-1">Total Siswa</p>
+            <p class="text-2xl font-bold text-white">{{ animatedSiswa }}</p>
           </div>
-          <p class="text-2xl font-bold text-zinc-900">{{ animatedSiswa }}</p>
-          <p class="text-zinc-600 text-sm mt-1">Total Siswa</p>
         </section>
 
         <section
-          class="stat-card bg-white border border-zinc-200 rounded-xl p-5"
+          class="stat-card group relative overflow-hidden rounded-xl p-5 bg-linear-to-br from-red-500 to-red-600 shadow-lg shadow-red-500/20"
           aria-label="Siswa Telat Bayar"
         >
-          <div class="flex items-center justify-between mb-4">
-            <div
-              class="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-50 border border-zinc-100"
-            >
-              <ExclamationCircleIcon class="w-5 h-5 text-red-600" />
-            </div>
+          <ExclamationCircleIcon
+            class="absolute -right-4 -bottom-4 w-28 h-28 text-white/15 rotate-[-8deg] pointer-events-none"
+          />
+          <div class="relative z-10">
+            <p class="text-red-100 text-sm mt-1">Siswa Telat Bayar</p>
+            <p class="text-2xl font-bold text-white">{{ animatedTelat }}</p>
           </div>
-          <p class="text-2xl font-bold text-zinc-900">{{ animatedTelat }}</p>
-          <p class="text-zinc-600 text-sm mt-1">Siswa Telat Bayar</p>
         </section>
 
         <section
-          class="stat-card bg-white border border-zinc-200 rounded-xl p-5"
+          class="stat-card group relative overflow-hidden rounded-xl p-5 bg-linear-to-br from-amber-500 to-amber-600 shadow-lg shadow-amber-500/20"
           aria-label="Iuran Aktif"
         >
-          <div class="flex items-center justify-between mb-4">
-            <div
-              class="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-50 border border-zinc-100"
-            >
-              <ChartBarIcon class="w-5 h-5 text-amber-600" />
-            </div>
+          <ChartBarIcon
+            class="absolute -right-4 -bottom-4 w-28 h-28 text-white/15 rotate-[-8deg] pointer-events-none"
+          />
+          <div class="relative z-10">
+            <p class="text-amber-100 text-sm mt-1">Iuran Aktif</p>
+            <p class="text-2xl font-bold text-white">{{ animatedIuran }}</p>
           </div>
-          <p class="text-2xl font-bold text-zinc-900">{{ animatedIuran }}</p>
-          <p class="text-zinc-600 text-sm mt-1">Iuran Aktif</p>
         </section>
       </div>
 

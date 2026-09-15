@@ -94,51 +94,45 @@
       <!-- Stat Cards (Col-span 2) - Scale Up -->
       <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-5">
         <div
-          class="laporan-stat bg-white border border-zinc-200 rounded-xl p-5 flex flex-col justify-center"
+          class="laporan-stat group relative overflow-hidden rounded-xl p-5 flex flex-col justify-center bg-linear-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/20"
         >
-          <div class="flex items-center justify-between mb-4">
-            <div
-              class="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-50 border border-zinc-100"
-            >
-              <ArrowTrendingUpIcon class="w-5 h-5 text-emerald-600" />
-            </div>
+          <ArrowTrendingUpIcon
+            class="absolute -right-4 -bottom-4 w-28 h-28 text-white/15 rotate-[-8deg] pointer-events-none"
+          />
+          <div class="relative z-10">
+            <p class="text-2xl font-bold text-white">
+              Rp {{ formatRupiah(animatedMasuk) }}
+            </p>
+            <p class="text-emerald-100 text-sm mt-1">Total Pemasukan</p>
           </div>
-          <p class="text-2xl font-bold text-zinc-900">
-            Rp {{ formatRupiah(animatedMasuk) }}
-          </p>
-          <p class="text-zinc-500 text-sm mt-1">Total Pemasukan</p>
         </div>
 
         <div
-          class="laporan-stat bg-white border border-zinc-200 rounded-xl p-5 flex flex-col justify-center"
+          class="laporan-stat group relative overflow-hidden rounded-xl p-5 flex flex-col justify-center bg-linear-to-br from-red-500 to-red-600 shadow-lg shadow-red-500/20"
         >
-          <div class="flex items-center justify-between mb-4">
-            <div
-              class="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-50 border border-zinc-100"
-            >
-              <ArrowTrendingDownIcon class="w-5 h-5 text-red-600" />
-            </div>
+          <ArrowTrendingDownIcon
+            class="absolute -right-4 -bottom-4 w-28 h-28 text-white/15 rotate-[-8deg] pointer-events-none"
+          />
+          <div class="relative z-10">
+            <p class="text-2xl font-bold text-white">
+              Rp {{ formatRupiah(animatedKeluar) }}
+            </p>
+            <p class="text-red-100 text-sm mt-1">Total Pengeluaran</p>
           </div>
-          <p class="text-2xl font-bold text-zinc-900">
-            Rp {{ formatRupiah(animatedKeluar) }}
-          </p>
-          <p class="text-zinc-500 text-sm mt-1">Total Pengeluaran</p>
         </div>
 
         <div
-          class="laporan-stat bg-white border border-zinc-200 rounded-xl p-5 flex flex-col justify-center"
+          class="laporan-stat group relative overflow-hidden rounded-xl p-5 flex flex-col justify-center bg-linear-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20"
         >
-          <div class="flex items-center justify-between mb-4">
-            <div
-              class="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-50 border border-zinc-100"
-            >
-              <CurrencyDollarIcon class="w-5 h-5 text-blue-600" />
-            </div>
+          <CurrencyDollarIcon
+            class="absolute -right-4 -bottom-4 w-28 h-28 text-white/15 rotate-[-8deg] pointer-events-none"
+          />
+          <div class="relative z-10">
+            <p class="text-2xl font-bold text-white">
+              Rp {{ formatRupiah(animatedSaldo) }}
+            </p>
+            <p class="text-blue-100 text-sm mt-1">Saldo Akhir</p>
           </div>
-          <p class="text-2xl font-bold text-zinc-900">
-            Rp {{ formatRupiah(animatedSaldo) }}
-          </p>
-          <p class="text-zinc-500 text-sm mt-1">Saldo Akhir</p>
         </div>
       </div>
     </div>
@@ -301,7 +295,7 @@ const triggerAnimations = () => {
     translateX: [-100, 0],
     opacity: [0, 1],
     duration: 800,
-    easing: 'easeOutQuart'
+    easing: "easeOutQuart",
   });
 
   // 2. Stat Cards: Scale up (membesar)
@@ -311,7 +305,7 @@ const triggerAnimations = () => {
     opacity: [0, 1],
     delay: anime.stagger(150, { start: 200 }),
     duration: 700,
-    easing: 'easeOutBack'
+    easing: "easeOutBack",
   });
 
   // 3. Detail Cards: Slide dari kanan
@@ -321,18 +315,18 @@ const triggerAnimations = () => {
     opacity: [0, 1],
     delay: anime.stagger(150, { start: 400 }),
     duration: 800,
-    easing: 'easeOutQuart'
+    easing: "easeOutQuart",
   });
 };
 
 // Animasi Angka Naik (Count-Up)
 const animateStats = () => {
   const stats = statistik.value;
-  
+
   const counters = [
     { ref: animatedMasuk, target: stats.total_pemasukan },
     { ref: animatedKeluar, target: stats.total_pengeluaran },
-    { ref: animatedSaldo, target: stats.saldo }
+    { ref: animatedSaldo, target: stats.saldo },
   ];
 
   counters.forEach((counter, index) => {
@@ -342,11 +336,11 @@ const animateStats = () => {
       val: counter.target,
       round: 1,
       duration: 1500,
-      delay: 300 + (index * 150),
-      easing: 'easeOutExpo',
+      delay: 300 + index * 150,
+      easing: "easeOutExpo",
       update: () => {
         counter.ref.value = obj.val;
-      }
+      },
     });
   });
 };
