@@ -16,7 +16,7 @@
         </button>
 
         <button 
-          v-if="notifikasiStore.notifikasi.length > 0"
+          v-if="!notifikasiStore.isLoading && notifikasiStore.notifikasi.length > 0"
           @click="handleDeleteAll"
           class="flex-1 sm:flex-none bg-zinc-100 text-zinc-700 px-4 py-2.5 rounded-lg font-semibold text-sm hover:bg-zinc-200 transition flex items-center gap-2 justify-center"
         >
@@ -25,7 +25,7 @@
         </button>
 
         <button 
-          v-if="notifikasiStore.unreadCount > 0"
+          v-if="!notifikasiStore.isLoading && notifikasiStore.unreadCount > 0"
           @click="handleMarkAllRead"
           class="flex-1 sm:flex-none bg-zinc-100 text-zinc-700 px-4 py-2.5 rounded-lg font-semibold text-sm hover:bg-zinc-200 transition flex items-center gap-2 justify-center"
         >
@@ -47,7 +47,26 @@
 
     <!-- List Notifikasi -->
     <div class="bg-white rounded-xl border border-zinc-200 shadow-sm divide-y divide-zinc-100">
-      <div v-if="notifikasiStore.isLoading" class="px-6 py-16 text-center text-zinc-400 text-sm">Memuat notifikasi...</div>
+      
+      <!-- Skeleton Loading -->
+      <div v-if="notifikasiStore.isLoading" class="divide-y divide-zinc-100">
+        <div v-for="i in 6" :key="i" class="flex items-start gap-4 p-6 animate-pulse">
+          <div class="pt-1 w-4 h-4 bg-zinc-200 rounded shrink-0"></div>
+          <div class="w-10 h-10 rounded-full bg-zinc-200 shrink-0 mt-1"></div>
+          <div class="flex-1 min-w-0 space-y-2">
+            <div class="h-4 w-1/3 bg-zinc-200 rounded"></div>
+            <div class="h-3 w-2/3 bg-zinc-200 rounded"></div>
+            <div class="flex items-center gap-2 mt-2">
+              <div class="h-3 w-20 bg-zinc-200 rounded"></div>
+              <div class="h-3 w-12 bg-zinc-200 rounded"></div>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2 shrink-0 pt-1">
+            <div class="w-7 h-7 bg-zinc-200 rounded-md"></div>
+            <div class="w-7 h-7 bg-zinc-200 rounded-md"></div>
+          </div>
+        </div>
+      </div>
       
       <div v-else-if="notifikasiStore.notifikasi.length === 0" class="px-6 py-16 text-center text-zinc-400 text-sm">
         <BellSlashIcon class="w-10 h-10 mx-auto mb-3 text-zinc-300" />
@@ -114,15 +133,19 @@
 
         <!-- Tombol Aksi Kanan (Tandai Dibaca & Hapus) -->
         <div class="flex flex-col gap-2 shrink-0 pt-1">
-          <!-- Tombol Centang (Tandai Dibaca) -->
+          <!-- Tombol Centang (Tandai Dibaca) - Centang 2 Kayak WhatsApp -->
           <button 
             @click="handleMarkAsRead(notif)" 
             class="p-1.5 rounded-md transition border"
-            :class="notif.is_read ? 'text-emerald-500 border-emerald-200 bg-emerald-50 cursor-default' : 'text-zinc-400 border-zinc-200 hover:bg-zinc-100 hover:text-zinc-700'"
+            :class="notif.is_read ? 'text-blue-600 border-blue-200 bg-blue-50 cursor-default' : 'text-zinc-400 border-zinc-200 hover:bg-zinc-100 hover:text-zinc-700'"
             :disabled="notif.is_read"
             :title="notif.is_read ? 'Sudah dibaca' : 'Tandai sudah dibaca'"
           >
-            <CheckCircleIcon class="w-4 h-4" />
+            <span v-if="notif.is_read" class="relative flex items-center">
+              <CheckIcon class="w-4 h-4" />
+              <CheckIcon class="w-4 h-4 -ml-3" />
+            </span>
+            <CheckIcon v-else class="w-4 h-4" />
           </button>
 
           <!-- Tombol Hapus -->
@@ -282,7 +305,7 @@ import {
   TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogTitle 
 } from '@headlessui/vue';
 import { 
-  BellIcon, BellSlashIcon, CheckCircleIcon, TrashIcon, 
+  BellIcon, BellSlashIcon, CheckCircleIcon, CheckIcon, TrashIcon, 
   XMarkIcon, AcademicCapIcon, CommandLineIcon, ChatBubbleLeftIcon, 
   TagIcon, PaperAirplaneIcon, UserIcon 
 } from '@heroicons/vue/24/outline';

@@ -9,7 +9,7 @@
           {{ filteredTransaksi.length }} transaksi ditemukan
         </p>
       </div>
-      <!-- Tombol Input Pembayaran (Hanya Guru & Bendahara) -->
+      <!-- Tombol Input Pembayaran (Guru & Bendahara) -->
       <button
         v-if="authStore.role === 'guru' || authStore.role === 'bendahara'"
         @click="openInputModal"
@@ -22,7 +22,7 @@
 
     <!-- Chart Card -->
     <div
-      class="transaksi-chart-card bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6"
+      class="transaksi-chart-card bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6 shadow-sm"
     >
       <div class="relative w-40 h-40 shrink-0">
         <canvas ref="statusChart"></canvas>
@@ -70,14 +70,13 @@
 
     <!-- Card Tabel -->
     <div
-      class="transaksi-card bg-white border border-zinc-200 rounded-xl overflow-hidden"
+      class="transaksi-card bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm"
     >
-      <!-- Filter Row (Diubah biar search-nya flex-1 / ngisi full) -->
+      <!-- Filter Row -->
       <div
         v-if="authStore.role === 'guru' || authStore.role === 'bendahara'"
         class="flex flex-col md:flex-row items-stretch md:items-center gap-3 p-4 border-b border-zinc-100 bg-zinc-50/50"
       >
-        <!-- Search (Diubah jadi flex-1) -->
         <div class="relative flex-1 w-full">
           <MagnifyingGlassIcon
             class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
@@ -103,10 +102,10 @@
 
       <!-- Tabel dengan Horizontal Scroll -->
       <div class="overflow-x-auto">
-        <div class="min-w-full">
+        <div class="min-w-375 w-full">
           <!-- Header Row -->
           <div
-            class="grid items-center px-6 py-3 text-zinc-500 text-xs font-semibold uppercase tracking-wider border-b border-zinc-100 bg-white"
+            class="grid items-center px-6 py-3 text-zinc-500 text-xs font-semibold uppercase tracking-wider border-b border-zinc-100 bg-zinc-50/80"
             :style="{ gridTemplateColumns: gridTemplate }"
           >
             <div class="text-center">No</div>
@@ -122,13 +121,64 @@
             <div class="text-center">Aksi</div>
           </div>
 
-          <!-- States & Rows -->
-          <div
-            v-if="loading"
-            class="px-6 py-16 text-center text-zinc-400 text-sm"
-          >
-            Memuat data transaksi...
+          <!-- Skeleton Loading State -->
+          <div v-if="loading" class="bg-white">
+            <div
+              v-for="i in 8"
+              :key="i"
+              class="grid items-center px-6 py-4 border-b border-zinc-50 animate-pulse"
+              :style="{ gridTemplateColumns: gridTemplate }"
+            >
+              <div class="flex justify-center">
+                <div class="w-4 h-4 bg-zinc-200 rounded"></div>
+              </div>
+              <div class="flex items-center gap-3 pr-4 min-w-45">
+                <div class="w-8 h-8 rounded-full bg-zinc-200 shrink-0"></div>
+                <div class="flex-1 space-y-2">
+                  <div class="w-3/4 h-3 bg-zinc-200 rounded"></div>
+                  <div class="w-1/2 h-2 bg-zinc-100 rounded"></div>
+                </div>
+              </div>
+              <div class="pr-4">
+                <div class="w-24 h-3 bg-zinc-200 rounded"></div>
+              </div>
+              <div class="pr-4">
+                <div class="w-16 h-3 bg-zinc-200 rounded"></div>
+              </div>
+              <div class="pr-4">
+                <div class="w-24 h-4 bg-zinc-200 rounded"></div>
+              </div>
+              <div class="pr-4">
+                <div class="w-14 h-3 bg-zinc-200 rounded"></div>
+              </div>
+              <div class="flex justify-center pr-4">
+                <div class="w-10 h-10 rounded-md bg-zinc-200"></div>
+              </div>
+              <div class="pr-4">
+                <div class="w-28 h-3 bg-zinc-200 rounded"></div>
+              </div>
+              <div class="pr-4">
+                <div class="w-16 h-5 bg-zinc-200 rounded-full"></div>
+              </div>
+              <div class="pr-4 min-w-45">
+                <div class="flex items-center gap-3">
+                  <div class="w-7 h-7 rounded-full bg-zinc-200 shrink-0"></div>
+                  <div class="flex-1 space-y-2">
+                    <div class="w-20 h-3 bg-zinc-200 rounded"></div>
+                    <div class="w-12 h-2 bg-zinc-100 rounded"></div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="flex items-center justify-end gap-2 whitespace-nowrap"
+              >
+                <div class="w-16 h-7 bg-zinc-200 rounded-md"></div>
+                <div class="w-16 h-7 bg-zinc-200 rounded-md"></div>
+              </div>
+            </div>
           </div>
+
+          <!-- Empty State -->
           <div
             v-else-if="filteredTransaksi.length === 0"
             class="px-6 py-16 text-center text-zinc-400 text-sm"
@@ -136,11 +186,12 @@
             Data tidak ditemukan.
           </div>
 
+          <!-- Data Rows -->
           <div v-else>
             <div
               v-for="(trx, index) in pagedTransaksi"
               :key="trx.id"
-              class="transaksi-row grid items-center px-6 py-4 border-b border-zinc-50 last:border-0 hover:bg-zinc-50 transition-colors text-sm"
+              class="transaksi-row grid items-center px-6 py-4 border-b border-zinc-50 last:border-0 hover:bg-zinc-50/70 transition-colors text-sm"
               :style="{ gridTemplateColumns: gridTemplate }"
             >
               <!-- No -->
@@ -197,7 +248,7 @@
               </div>
 
               <!-- Bukti Bayar -->
-              <div class="pr-4 text-center min-w-20 flex justify-center">
+              <div class="pr-5 text-center min-w-10 flex justify-center">
                 <a
                   v-if="trx.bukti_bayar"
                   :href="trx.bukti_bayar"
@@ -232,13 +283,60 @@
                 </span>
               </div>
 
-              <!-- Tgl Dikonfirmasi -->
-              <div class="pr-4 text-zinc-500 text-xs text-center min-w-27.5">
-                {{ formatDate(trx.confirmed_at) || "-" }}
+              <!-- Disetujui Oleh & Tgl Dikonfirmasi -->
+              <div class="pr-4 min-w-45">
+                <div
+                  v-if="trx.confirmed_by?.name || trx.confirmedBy?.name"
+                  class="flex items-center gap-3"
+                >
+                  <img
+                    v-if="trx.confirmed_by?.foto || trx.confirmedBy?.foto"
+                    :src="trx.confirmed_by?.foto || trx.confirmedBy?.foto"
+                    class="w-7 h-7 rounded-full object-cover shrink-0 border border-zinc-100"
+                    alt="foto"
+                  />
+                  <div
+                    v-else
+                    class="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-semibold text-[10px] shrink-0 border border-emerald-100"
+                  >
+                    {{
+                      (trx.confirmed_by?.name || trx.confirmedBy?.name)?.charAt(
+                        0,
+                      ) || "?"
+                    }}
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <div class="flex items-center gap-1.5">
+                      <span class="font-medium text-zinc-700 text-xs">{{
+                        trx.confirmed_by?.name || trx.confirmedBy?.name
+                      }}</span>
+                      <span
+                        v-if="
+                          trx.confirmed_by?.role?.name ||
+                          trx.confirmedBy?.role?.name
+                        "
+                        class="text-[9px] bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded capitalize"
+                      >
+                        {{
+                          trx.confirmed_by?.role?.name ||
+                          trx.confirmedBy?.role?.name
+                        }}
+                      </span>
+                    </div>
+                    <span class="text-zinc-500 text-[10px]">{{
+                      formatDate(trx.confirmed_at)
+                    }}</span>
+                  </div>
+                </div>
+                <span v-else class="text-zinc-300 text-xs italic"
+                  >Belum dikonfirmasi</span
+                >
               </div>
 
               <!-- Aksi -->
-              <div class="flex items-center justify-end gap-1 min-w-37.5">
+              <div
+                class="flex items-center justify-center gap-2 whitespace-nowrap"
+              >
                 <template
                   v-if="
                     trx.status === 'pending' &&
@@ -260,8 +358,7 @@
                   </button>
                 </template>
 
-                <!-- Kalau bukan pending, tampilin pesan ini -->
-                <span v-else class="text-xs text-zinc-400 italic"
+                <span v-else class="text-xs text-center text-zinc-400 italic"
                   >Tidak ada aksi tersedia</span
                 >
               </div>
@@ -272,6 +369,7 @@
 
       <!-- Pagination -->
       <div
+        v-if="!loading"
         class="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-zinc-100 gap-4"
       >
         <p class="text-zinc-400 text-xs">
@@ -379,6 +477,26 @@
                         </option>
                       </select>
                     </div>
+
+                    <!-- Student Profile Preview -->
+                    <div v-if="selectedSiswa" class="mt-3 flex items-center gap-3 p-3 bg-zinc-50 rounded-lg border border-zinc-100">
+                      <img
+                        v-if="selectedSiswa.user?.foto"
+                        :src="selectedSiswa.user.foto"
+                        class="w-10 h-10 rounded-full object-cover shrink-0 border border-zinc-200"
+                        alt="foto"
+                      />
+                      <div
+                        v-else
+                        class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold text-sm shrink-0 border border-blue-100"
+                      >
+                        {{ selectedSiswa.user?.name?.charAt(0) || 'S' }}
+                      </div>
+                      <div>
+                        <p class="font-semibold text-zinc-800 text-sm">{{ selectedSiswa.user?.name }}</p>
+                        <p class="text-xs text-zinc-500">NIS: {{ selectedSiswa.nis || '-' }} · Kelas: {{ selectedSiswa.kelas?.nama || '-' }}</p>
+                      </div>
+                    </div>
                   </div>
 
                   <div>
@@ -446,23 +564,21 @@
                   </div>
 
                   <div class="grid grid-cols-2 gap-4">
+                    <!-- Metode Bayar Disabled (Cash Only) -->
                     <div>
                       <label class="text-xs text-zinc-600 font-medium"
                         >Metode Bayar</label
                       >
                       <div class="relative mt-1">
-                        <CreditCardIcon
+                        <BanknotesIcon
                           class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
                         />
-                        <select
-                          v-model="inputForm.metode"
-                          required
-                          class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none bg-white appearance-none capitalize"
-                        >
-                          <option value="cash">Tunai (Cash)</option>
-                          <option value="transfer">Transfer Bank</option>
-                          <option value="qris">QRIS / E-Wallet</option>
-                        </select>
+                        <input
+                          type="text"
+                          value="Tunai (Cash)"
+                          disabled
+                          class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm bg-zinc-50 cursor-not-allowed capitalize"
+                        />
                       </div>
                     </div>
                     <div>
@@ -521,7 +637,6 @@
                     :disabled="inputting"
                     class="px-4 py-2 rounded-lg bg-zinc-900 text-white hover:bg-zinc-800 text-sm font-medium transition disabled:opacity-50 flex items-center gap-2"
                   >
-                    <PlusIcon class="w-4 h-4" />
                     {{ inputting ? "Menyimpan..." : "Simpan Transaksi" }}
                   </button>
                 </div>
@@ -575,7 +690,6 @@ const authStore = useAuthStore();
 const transaksiList = ref([]);
 const loading = ref(false);
 
-// State buat Modal Input
 const siswaList = ref([]);
 const allIuranList = ref([]);
 const isInputModalOpen = ref(false);
@@ -586,12 +700,18 @@ const inputForm = reactive({
   iuran_id: "",
   tanggal_bayar: dayjs().format("YYYY-MM-DD"),
   jumlah: 0,
-  metode: "cash",
+  metode: "tunai",
   status: "confirmed",
   keterangan: "",
 });
 
-// Filter iuran berdasarkan kelas siswa yang dipilih, DAN yang belum dibayar/pending
+// Computed buat nampilin profil siswa yang dipilih di modal
+const selectedSiswa = computed(() => {
+  if (!inputForm.siswa_id) return null;
+  return siswaList.value.find((s) => s.id === inputForm.siswa_id);
+});
+
+// Filter iuran berdasarkan kelas siswa, dan buang yang udah dibayar/pending
 const filteredIuranList = computed(() => {
   if (!inputForm.siswa_id) return [];
   const siswa = siswaList.value.find((s) => s.id === inputForm.siswa_id);
@@ -615,7 +735,7 @@ const filterStatus = ref("Semua");
 const currentPage = ref(1);
 const pageSize = 25;
 
-// Chart State & Computed
+// Chart State
 const statusChart = ref(null);
 let doughnutChartInstance = null;
 
@@ -631,12 +751,11 @@ const statusData = computed(() => {
   return { confirmed, pending, rejected };
 });
 
-// Dynamic Grid Template
+// Mapping lebar kolom tabel, kolom aksi diperlebar biar muat 2 tombol
 const gridTemplate = computed(() => {
-  return "60px minmax(180px, 1.5fr) minmax(120px, 1fr) minmax(110px, 1fr) minmax(120px, 1fr) minmax(90px, 1fr) 80px minmax(150px, 1.5fr) minmax(100px, 1fr) minmax(110px, 1fr) minmax(150px, 1fr)";
+  return "60px minmax(180px, 1.5fr) minmax(120px, 1fr) minmax(110px, 1fr) minmax(120px, 1fr) minmax(90px, 1fr) 80px minmax(150px, 1.5fr) minmax(100px, 1fr) minmax(180px, 1.5fr) minmax(200px, 1fr)";
 });
 
-// --- Anime.js Stagger Animation ---
 const triggerAnimations = () => {
   anime({
     targets: ".transaksi-card",
@@ -723,7 +842,7 @@ const openInputModal = () => {
     iuran_id: "",
     tanggal_bayar: dayjs().format("YYYY-MM-DD"),
     jumlah: 0,
-    metode: "cash",
+    metode: "tunai",
     status: "confirmed",
     keterangan: "",
   });
@@ -785,7 +904,7 @@ const getStatusClass = (status) => {
 const filteredTransaksi = computed(() => {
   let list = transaksiList.value;
 
-  // FIX: Kalau yang login Guru, filter cuma transaksi siswa di kelasnya
+  // Filter khusus guru
   if (authStore.role === "guru" && authStore.user?.kelas_id) {
     list = list.filter((t) => t.siswa?.kelas_id === authStore.user.kelas_id);
   }
@@ -845,7 +964,6 @@ const confirmAction = (trx, newStatus) => {
   });
 };
 
-// --- Render Chart ---
 const renderChart = () => {
   if (doughnutChartInstance) doughnutChartInstance.destroy();
 

@@ -9,8 +9,9 @@
           {{ filteredSiswa.length }} siswa terdaftar
         </p>
       </div>
+      <!-- Tombol Tambah Siswa (Hanya Admin) -->
       <button
-        v-if="authStore.role === 'guru'"
+        v-if="authStore.role === 'admin'"
         @click="openCreateModal"
         class="bg-zinc-900 text-white px-4 py-2.5 rounded-lg font-semibold text-sm hover:bg-zinc-800 transition flex items-center gap-2 w-full sm:w-auto justify-center"
       >
@@ -19,235 +20,309 @@
       </button>
     </div>
 
-    <!-- Chart Card -->
-    <div class="siswa-chart-card bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
-      <div class="relative w-40 h-40 shrink-0">
-        <canvas ref="siswaChart"></canvas>
-        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span class="text-xl font-bold text-zinc-900">{{ siswaList.length }}</span>
-          <span class="text-zinc-400 text-[10px] uppercase tracking-wide">Total Siswa</span>
+    <!-- Skeleton Loading -->
+    <div v-if="loading" class="space-y-6">
+      <!-- Skeleton Chart Card -->
+      <div class="bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
+        <div class="w-40 h-40 bg-zinc-200 rounded-full shrink-0 animate-pulse"></div>
+        <div class="flex-1 w-full grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div class="p-3 bg-zinc-50 rounded-lg flex items-center gap-3" v-for="i in 2" :key="i">
+            <div class="w-3 h-3 rounded-full bg-zinc-200 animate-pulse"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-3 w-12 bg-zinc-200 rounded animate-pulse"></div>
+              <div class="h-5 w-8 bg-zinc-200 rounded animate-pulse"></div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="flex-1 w-full grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <div v-for="(label, index) in chartData.labels" :key="label" class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
-          <span class="w-3 h-3 rounded-full" :style="{ backgroundColor: chartData.colors[index] }"></span>
-          <div class="flex-1">
-            <p class="text-xs text-zinc-500">{{ label }}</p>
-            <p class="text-lg font-bold text-zinc-800">{{ chartData.data[index] }}</p>
+
+      <!-- Skeleton Tabel Card -->
+      <div class="bg-white border border-zinc-200 rounded-xl overflow-hidden">
+        <div class="flex items-stretch gap-3 p-4 border-b border-zinc-100 bg-zinc-50/50">
+          <div class="flex-1 h-10 bg-zinc-200 rounded-lg animate-pulse"></div>
+          <div class="w-32 h-10 bg-zinc-200 rounded-lg animate-pulse hidden md:block"></div>
+          <div class="w-32 h-10 bg-zinc-200 rounded-lg animate-pulse hidden md:block"></div>
+        </div>
+        
+        <!-- Skeleton Header -->
+        <div
+          class="grid items-center px-6 py-3 border-b border-zinc-100 bg-white"
+          :style="{ gridTemplateColumns: gridTemplate }"
+        >
+          <div class="h-4 bg-zinc-200 rounded animate-pulse w-6 mx-auto"></div>
+          <div class="h-4 bg-zinc-200 rounded animate-pulse w-24"></div>
+          <div class="h-4 bg-zinc-200 rounded animate-pulse w-16"></div>
+          <div class="h-4 bg-zinc-200 rounded animate-pulse w-12"></div>
+          <div class="h-4 bg-zinc-200 rounded animate-pulse w-16"></div>
+          <div class="h-4 bg-zinc-200 rounded animate-pulse w-16"></div>
+          <div class="h-4 bg-zinc-200 rounded animate-pulse w-20"></div>
+          <div v-if="authStore.role === 'guru'" class="h-4 bg-zinc-200 rounded animate-pulse w-16"></div>
+          <div class="h-4 bg-zinc-200 rounded animate-pulse w-12"></div>
+          <div v-if="authStore.role === 'admin'" class="h-4 bg-zinc-200 rounded animate-pulse w-12 mx-auto"></div>
+        </div>
+
+        <!-- Skeleton Rows -->
+        <div
+          v-for="i in 5"
+          :key="i"
+          class="grid items-center px-6 py-4 border-b border-zinc-50 last:border-0"
+          :style="{ gridTemplateColumns: gridTemplate }"
+        >
+          <div class="h-5 bg-zinc-200 rounded animate-pulse w-6 mx-auto"></div>
+          <div class="flex items-center gap-3 pr-4">
+            <div class="w-8 h-8 rounded-full bg-zinc-200 animate-pulse shrink-0"></div>
+            <div class="space-y-2 flex-1">
+              <div class="h-3 w-24 bg-zinc-200 rounded animate-pulse"></div>
+              <div class="h-3 w-32 bg-zinc-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="h-3 w-16 bg-zinc-200 rounded animate-pulse"></div>
+            <div class="h-3 w-20 bg-zinc-200 rounded animate-pulse"></div>
+          </div>
+          <div class="h-5 w-16 bg-zinc-200 rounded animate-pulse"></div>
+          <div class="h-3 w-16 bg-zinc-200 rounded animate-pulse"></div>
+          <div class="space-y-2">
+            <div class="h-3 w-16 bg-zinc-200 rounded animate-pulse"></div>
+            <div class="h-3 w-20 bg-zinc-200 rounded animate-pulse"></div>
+          </div>
+          <div class="h-3 w-full bg-zinc-200 rounded animate-pulse"></div>
+          <div v-if="authStore.role === 'guru'" class="space-y-2">
+            <div class="h-3 w-20 bg-zinc-200 rounded animate-pulse"></div>
+            <div class="h-3 w-16 bg-zinc-200 rounded animate-pulse"></div>
+          </div>
+          <div class="h-5 w-12 bg-zinc-200 rounded animate-pulse"></div>
+          <div v-if="authStore.role === 'admin'" class="flex gap-1 justify-end">
+            <div class="w-8 h-8 bg-zinc-200 rounded animate-pulse"></div>
+            <div class="w-8 h-8 bg-zinc-200 rounded animate-pulse"></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Card Tabel -->
-    <div
-      class="siswa-card bg-white border border-zinc-200 rounded-xl overflow-hidden"
-    >
-      <!-- Filter Row (Diubah biar search-nya flex-1 / ngisi full) -->
-      <div
-        class="flex flex-col md:flex-row items-stretch md:items-center gap-3 p-4 border-b border-zinc-100 bg-zinc-50/50"
-      >
-        <!-- Search (Diubah jadi flex-1 biar panjang) -->
-        <div class="relative flex-1 w-full">
-          <MagnifyingGlassIcon
-            class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
-          />
-          <input
-            v-model="searchName"
-            type="text"
-            placeholder="Cari nama siswa..."
-            class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 outline-none transition"
-          />
+    <template v-else>
+      <!-- Chart Card -->
+      <div class="siswa-chart-card bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
+        <div class="relative w-40 h-40 shrink-0">
+          <canvas ref="siswaChart"></canvas>
+          <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span class="text-xl font-bold text-zinc-900">{{ siswaList.length }}</span>
+            <span class="text-zinc-400 text-[10px] uppercase tracking-wide">Total Siswa</span>
+          </div>
         </div>
-
-        <!-- Filter Kelas (Hidden kalau Guru) -->
-        <select
-          v-if="authStore.role !== 'guru'"
-          v-model="filterKelas"
-          class="w-full md:w-auto px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-600 focus:ring-1 focus:ring-zinc-900 outline-none bg-white"
-        >
-          <option value="Semua">Semua Kelas</option>
-          <option v-for="k in kelasOptions" :key="k" :value="k">{{ k }}</option>
-        </select>
-
-        <!-- Filter Status -->
-        <select
-          v-model="filterStatus"
-          class="w-full md:w-auto px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-600 focus:ring-1 focus:ring-zinc-900 outline-none bg-white"
-        >
-          <option value="Semua">Semua Status</option>
-          <option value="Aktif">Aktif</option>
-          <option value="Nonaktif">Nonaktif</option>
-        </select>
-
-        <!-- Tombol Export -->
-        <template
-          v-if="authStore.role === 'guru' || authStore.role === 'bendahara'"
-        >
-          <button
-            @click="exportFile('pdf')"
-            :disabled="exporting"
-            class="w-full md:w-auto flex items-center justify-center gap-1.5 px-3 py-2 border border-zinc-200 rounded-lg text-sm text-red-600 hover:bg-red-50 transition font-medium disabled:opacity-50"
-          >
-            <DocumentArrowDownIcon class="w-4 h-4" />
-            <span>Export PDF</span>
-          </button>
-          <button
-            @click="exportFile('excel')"
-            :disabled="exporting"
-            class="w-full md:w-auto flex items-center justify-center gap-1.5 px-3 py-2 border border-zinc-200 rounded-lg text-sm text-green-600 hover:bg-green-50 transition font-medium disabled:opacity-50"
-          >
-            <DocumentArrowDownIcon class="w-4 h-4" />
-            <span>Export Excel</span>
-          </button>
-        </template>
+        <div class="flex-1 w-full grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div v-for="(label, index) in chartData.labels" :key="label" class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
+            <span class="w-3 h-3 rounded-full" :style="{ backgroundColor: chartData.colors[index] }"></span>
+            <div class="flex-1">
+              <p class="text-xs text-zinc-500">{{ label }}</p>
+              <p class="text-lg font-bold text-zinc-800">{{ chartData.data[index] }}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Tabel dengan Horizontal Scroll -->
-      <div class="overflow-x-auto">
-        <div class="min-w-full">
-          <!-- Header Row -->
-          <div
-            class="grid items-center px-6 py-3 text-zinc-500 text-xs font-semibold uppercase tracking-wider border-b border-zinc-100 bg-white"
-            :style="{ gridTemplateColumns: gridTemplate }"
-          >
-            <div class="text-center">No</div>
-            <div class="text-center">Identitas Siswa</div>
-            <div>NIS / NISN</div>
-            <div>Kelas</div>
-            <div>Kontak</div>
-            <div>Tgl Lahir</div>
-            <div>Alamat</div>
-            <div v-if="authStore.role === 'guru'">Orang Tua</div>
-            <div>Status</div>
-            <div class="text-center">Aksi</div>
+      <!-- Card Tabel -->
+      <div
+        class="siswa-card bg-white border border-zinc-200 rounded-xl overflow-hidden"
+      >
+        <!-- Filter Row -->
+        <div
+          class="flex flex-col md:flex-row items-stretch md:items-center gap-3 p-4 border-b border-zinc-100 bg-zinc-50/50"
+        >
+          <!-- Search -->
+          <div class="relative flex-1 w-full">
+            <MagnifyingGlassIcon
+              class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
+            />
+            <input
+              v-model="searchName"
+              type="text"
+              placeholder="Cari nama siswa..."
+              class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 outline-none transition"
+            />
           </div>
 
-          <!-- States & Rows -->
-          <div
-            v-if="loading"
-            class="px-6 py-16 text-center text-zinc-400 text-sm"
+          <!-- Filter Kelas (Hidden kalau Guru) -->
+          <select
+            v-if="authStore.role !== 'guru'"
+            v-model="filterKelas"
+            class="w-full md:w-auto px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-600 focus:ring-1 focus:ring-zinc-900 outline-none bg-white"
           >
-            Memuat data siswa...
-          </div>
-          <div
-            v-else-if="filteredSiswa.length === 0"
-            class="px-6 py-16 text-center text-zinc-400 text-sm"
-          >
-            Data tidak ditemukan.
-          </div>
+            <option value="Semua">Semua Kelas</option>
+            <option v-for="k in kelasOptions" :key="k" :value="k">{{ k }}</option>
+          </select>
 
-          <div v-else>
+          <!-- Filter Status -->
+          <select
+            v-model="filterStatus"
+            class="w-full md:w-auto px-3 py-2 border border-zinc-200 rounded-lg text-sm text-zinc-600 focus:ring-1 focus:ring-zinc-900 outline-none bg-white"
+          >
+            <option value="Semua">Semua Status</option>
+            <option value="Aktif">Aktif</option>
+            <option value="Nonaktif">Nonaktif</option>
+          </select>
+
+          <!-- Tombol Export -->
+          <template
+            v-if="authStore.role === 'guru' || authStore.role === 'bendahara'"
+          >
+            <button
+              @click="exportFile('pdf')"
+              :disabled="exporting"
+              class="w-full md:w-auto flex items-center justify-center gap-1.5 px-3 py-2 border border-zinc-200 rounded-lg text-sm text-red-600 hover:bg-red-50 transition font-medium disabled:opacity-50"
+            >
+              <DocumentArrowDownIcon class="w-4 h-4" />
+              <span>Export PDF</span>
+            </button>
+            <button
+              @click="exportFile('excel')"
+              :disabled="exporting"
+              class="w-full md:w-auto flex items-center justify-center gap-1.5 px-3 py-2 border border-zinc-200 rounded-lg text-sm text-green-600 hover:bg-green-50 transition font-medium disabled:opacity-50"
+            >
+              <DocumentArrowDownIcon class="w-4 h-4" />
+              <span>Export Excel</span>
+            </button>
+          </template>
+        </div>
+
+        <!-- Tabel dengan Horizontal Scroll -->
+        <div class="overflow-x-auto">
+          <div class="min-w-full">
+            <!-- Header Row -->
             <div
-              v-for="(siswa, index) in pagedSiswa"
-              :key="siswa.id"
-              class="siswa-row grid items-center px-6 py-4 border-b border-zinc-50 last:border-0 hover:bg-zinc-50 transition-colors text-sm"
+              class="grid items-center px-6 py-3 text-zinc-500 text-xs font-semibold uppercase tracking-wider border-b border-zinc-100 bg-white"
               :style="{ gridTemplateColumns: gridTemplate }"
             >
-              <!-- No -->
-              <div class="text-center text-zinc-400 font-medium">
-                {{ (currentPage - 1) * pageSize + index + 1 }}
-              </div>
+              <div class="text-center">No</div>
+              <div class="text-center">Identitas Siswa</div>
+              <div>NIS / NISN</div>
+              <div>Kelas</div>
+              <div>Kontak</div>
+              <div>Tgl Lahir</div>
+              <div>Alamat</div>
+              <div v-if="authStore.role === 'guru'">Orang Tua</div>
+              <div>Status</div>
+              <div v-if="authStore.role === 'admin'" class="text-center">Aksi</div>
+            </div>
 
-              <!-- Nama & Email + Foto Profil -->
-              <div class="flex items-center gap-3 pr-4 min-w-50">
-                <img
-                  v-if="siswa.user?.foto"
-                  :src="siswa.user.foto"
-                  class="w-8 h-8 rounded-full object-cover shrink-0 border border-zinc-100"
-                  alt="foto"
-                />
-                <div
-                  v-else
-                  class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold text-xs shrink-0"
-                >
-                  {{ siswa.user?.name?.charAt(0) || "S" }}
+            <!-- States & Rows -->
+            <div
+              v-if="filteredSiswa.length === 0"
+              class="px-6 py-16 text-center text-zinc-400 text-sm"
+            >
+              Data tidak ditemukan.
+            </div>
+
+            <div v-else>
+              <div
+                v-for="(siswa, index) in pagedSiswa"
+                :key="siswa.id"
+                class="siswa-row grid items-center px-6 py-4 border-b border-zinc-50 last:border-0 hover:bg-zinc-50 transition-colors text-sm"
+                :style="{ gridTemplateColumns: gridTemplate }"
+              >
+                <!-- No -->
+                <div class="text-center text-zinc-400 font-medium">
+                  {{ (currentPage - 1) * pageSize + index + 1 }}
                 </div>
-                <div class="flex flex-col">
-                  <router-link
-                    :to="`/siswa/${siswa.id}`"
-                    class="font-semibold text-zinc-800 hover:text-blue-600 hover:underline transition"
+
+                <!-- Nama & Email + Foto Profil -->
+                <div class="flex items-center gap-3 pr-4 min-w-50">
+                  <img
+                    v-if="siswa.user?.foto"
+                    :src="siswa.user.foto"
+                    class="w-8 h-8 rounded-full object-cover shrink-0 border border-zinc-100"
+                    alt="foto"
+                  />
+                  <div
+                    v-else
+                    class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold text-xs shrink-0"
                   >
-                    {{ siswa.user?.name || "Nama Kosong" }}
-                  </router-link>
-                  <span class="text-xs text-zinc-400 truncate">{{
-                    siswa.user?.email || "-"
+                    {{ siswa.user?.name?.charAt(0) || "S" }}
+                  </div>
+                  <div class="flex flex-col">
+                    <router-link
+                      :to="`/siswa/${siswa.id}`"
+                      class="font-semibold text-zinc-800 hover:text-blue-600 hover:underline transition"
+                    >
+                      {{ siswa.user?.name || "Nama Kosong" }}
+                    </router-link>
+                    <span class="text-xs text-zinc-400 truncate">{{
+                      siswa.user?.email || "-"
+                    }}</span>
+                  </div>
+                </div>
+
+                <!-- NIS & NISN -->
+                <div class="flex flex-col pr-4 min-w-30">
+                  <span class="text-zinc-700">{{ siswa.nis || "-" }}</span>
+                  <span class="text-xs text-zinc-400">{{
+                    siswa.nisn || "-"
                   }}</span>
                 </div>
-              </div>
 
-              <!-- NIS & NISN -->
-              <div class="flex flex-col pr-4 min-w-30">
-                <span class="text-zinc-700">{{ siswa.nis || "-" }}</span>
-                <span class="text-xs text-zinc-400">{{
-                  siswa.nisn || "-"
-                }}</span>
-              </div>
-
-              <!-- Kelas -->
-              <div class="pr-4 min-w-25">
-                <span
-                  class="px-2 py-0.5 bg-zinc-100 text-zinc-600 text-xs rounded font-medium"
-                >
-                  {{ siswa.kelas?.nama || "-" }}
-                </span>
-              </div>
-
-              <!-- Kontak -->
-              <div class="flex flex-col pr-4 min-w-30">
-                <span class="text-zinc-600 text-xs">{{
-                  siswa.user?.no_hp || "-"
-                }}</span>
-              </div>
-
-              <!-- Tgl Lahir -->
-              <div class="pr-4 text-zinc-500 text-xs min-w-35">
-                {{ siswa.tempat_lahir || "-" }}<br />
-                {{ formatDate(siswa.tanggal_lahir) || "-" }}
-              </div>
-
-              <!-- Alamat -->
-              <div
-                class="pr-4 text-zinc-500 text-xs truncate min-w-37.5 max-w-50"
-                :title="siswa.alamat"
-              >
-                {{ siswa.alamat || "-" }}
-              </div>
-
-              <!-- Ortu (Hidden untuk Bendahara) -->
-              <div
-                v-if="authStore.role === 'guru'"
-                class="flex flex-col pr-4 min-w-35"
-              >
-                <span class="text-zinc-700 text-xs font-medium">{{
-                  siswa.nama_ortu || "-"
-                }}</span>
-                <span class="text-zinc-400 text-xs">{{
-                  siswa.no_hp_ortu || "-"
-                }}</span>
-              </div>
-
-              <!-- Status -->
-              <div class="pr-4 min-w-20">
-                <span
-                  class="flex items-center gap-1.5 text-xs font-medium"
-                  :class="
-                    siswa.user?.is_active ? 'text-emerald-600' : 'text-zinc-400'
-                  "
-                >
+                <!-- Kelas -->
+                <div class="pr-4 min-w-25">
                   <span
-                    class="w-1.5 h-1.5 rounded-full"
-                    :class="
-                      siswa.user?.is_active ? 'bg-emerald-500' : 'bg-zinc-400'
-                    "
-                  ></span>
-                  {{ siswa.user?.is_active ? "Aktif" : "Nonaktif" }}
-                </span>
-              </div>
+                    class="px-2 py-0.5 bg-zinc-100 text-zinc-600 text-xs rounded font-medium"
+                  >
+                    {{ siswa.kelas?.nama || "-" }}
+                  </span>
+                </div>
 
-              <!-- Action -->
-              <div class="flex items-center justify-end gap-1 min-w-25">
-                <template v-if="authStore.role === 'guru'">
+                <!-- Kontak -->
+                <div class="flex flex-col pr-4 min-w-30">
+                  <span class="text-zinc-600 text-xs">{{
+                    siswa.user?.no_hp || "-"
+                  }}</span>
+                </div>
+
+                <!-- Tgl Lahir -->
+                <div class="pr-4 text-zinc-500 text-xs min-w-35">
+                  {{ siswa.tempat_lahir || "-" }}<br />
+                  {{ formatDate(siswa.tanggal_lahir) || "-" }}
+                </div>
+
+                <!-- Alamat -->
+                <div
+                  class="pr-4 text-zinc-500 text-xs truncate min-w-37.5 max-w-50"
+                  :title="siswa.alamat"
+                >
+                  {{ siswa.alamat || "-" }}
+                </div>
+
+                <!-- Ortu (Hanya Guru) -->
+                <div
+                  v-if="authStore.role === 'guru'"
+                  class="flex flex-col pr-4 min-w-35"
+                >
+                  <span class="text-zinc-700 text-xs font-medium">{{
+                    siswa.nama_ortu || "-"
+                  }}</span>
+                  <span class="text-zinc-400 text-xs">{{
+                    siswa.no_hp_ortu || "-"
+                  }}</span>
+                </div>
+
+                <!-- Status -->
+                <div class="pr-4 min-w-20">
+                  <span
+                    class="flex items-center gap-1.5 text-xs font-medium"
+                    :class="
+                      siswa.user?.is_active ? 'text-emerald-600' : 'text-zinc-400'
+                    "
+                  >
+                    <span
+                      class="w-1.5 h-1.5 rounded-full"
+                      :class="
+                        siswa.user?.is_active ? 'bg-emerald-500' : 'bg-zinc-400'
+                      "
+                    ></span>
+                    {{ siswa.user?.is_active ? "Aktif" : "Nonaktif" }}
+                  </span>
+                </div>
+
+                <!-- Action (Hanya Admin) -->
+                <div v-if="authStore.role === 'admin'" class="flex items-center justify-end gap-1 min-w-25">
                   <button
                     @click="openEditModal(siswa)"
                     class="w-8 h-8 flex items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-100 transition"
@@ -260,54 +335,51 @@
                   >
                     <TrashIcon class="w-4 h-4" />
                   </button>
-                </template>
-                <span v-else class="text-xs text-zinc-300 italic"
-                  >tidak ada aksi</span
-                >
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Pagination -->
-      <div
-        class="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-zinc-100 gap-4"
-      >
-        <p class="text-zinc-400 text-xs">
-          Showing {{ rangeStart }}–{{ rangeEnd }} of {{ filteredSiswa.length }}
-        </p>
-        <div class="flex items-center gap-1">
-          <button
-            @click="currentPage = Math.max(1, currentPage - 1)"
-            :disabled="currentPage === 1"
-            class="w-8 h-8 flex items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 transition"
-          >
-            <ChevronLeftIcon class="w-4 h-4" />
-          </button>
-          <button
-            v-for="p in totalPages"
-            :key="p"
-            @click="currentPage = p"
-            class="w-8 h-8 flex items-center justify-center rounded-md text-xs font-medium transition"
-            :class="
-              currentPage === p
-                ? 'bg-zinc-900 text-white'
-                : 'text-zinc-500 hover:bg-zinc-100'
-            "
-          >
-            {{ p }}
-          </button>
-          <button
-            @click="currentPage = Math.min(totalPages, currentPage + 1)"
-            :disabled="currentPage === totalPages"
-            class="w-8 h-8 flex items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 transition"
-          >
-            <ChevronRightIcon class="w-4 h-4" />
-          </button>
+        <!-- Pagination -->
+        <div
+          class="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-zinc-100 gap-4"
+        >
+          <p class="text-zinc-400 text-xs">
+            Showing {{ rangeStart }}–{{ rangeEnd }} of {{ filteredSiswa.length }}
+          </p>
+          <div class="flex items-center gap-1">
+            <button
+              @click="currentPage = Math.max(1, currentPage - 1)"
+              :disabled="currentPage === 1"
+              class="w-8 h-8 flex items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 transition"
+            >
+              <ChevronLeftIcon class="w-4 h-4" />
+            </button>
+            <button
+              v-for="p in totalPages"
+              :key="p"
+              @click="currentPage = p"
+              class="w-8 h-8 flex items-center justify-center rounded-md text-xs font-medium transition"
+              :class="
+                currentPage === p
+                  ? 'bg-zinc-900 text-white'
+                  : 'text-zinc-500 hover:bg-zinc-100'
+              "
+            >
+              {{ p }}
+            </button>
+            <button
+              @click="currentPage = Math.min(totalPages, currentPage + 1)"
+              :disabled="currentPage === totalPages"
+              class="w-8 h-8 flex items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 transition"
+            >
+              <ChevronRightIcon class="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </template>
 
     <!-- Modal Form (Create/Edit) -->
     <TransitionRoot appear :show="isModalOpen" as="template">
@@ -428,7 +500,6 @@
                         v-model="form.kelas_id"
                         required
                         class="w-full pl-9 pr-3 py-2 border border-zinc-200 rounded-lg text-sm focus:ring-1 focus:ring-zinc-900 outline-none bg-white appearance-none disabled:bg-zinc-50 disabled:cursor-not-allowed disabled:text-zinc-500"
-                        :disabled="authStore.role === 'guru'"
                       >
                         <option value="" disabled>Pilih Kelas</option>
                         <option
@@ -615,7 +686,7 @@ import SiswaService from "@/api/siswa";
 import KelasService from "@/api/kelas";
 import LaporanService from "@/api/laporan";
 import anime from "animejs";
-import { Chart, registerables } from "chart.js"; // <-- Import Chart.js
+import { Chart, registerables } from "chart.js";
 import {
   TransitionRoot,
   TransitionChild,
@@ -650,7 +721,7 @@ Chart.register(...registerables);
 const authStore = useAuthStore();
 const siswaList = ref([]);
 const kelasList = ref([]);
-const loading = ref(false);
+const loading = ref(true); // Default true agar skeleton pertama muncul
 const submitting = ref(false);
 const exporting = ref(false);
 
@@ -686,12 +757,25 @@ const pageSize = 10;
 const siswaChart = ref(null);
 let chartInstance = null;
 
-// Dynamic Grid Template (Diubah paddingnya biar gak terlalu mepet)
+// Dynamic Grid Template (Disesuaikan agar kolom Aksi hanya muncul untuk admin)
 const gridTemplate = computed(() => {
+  const cols = [
+    "60px", // No
+    "minmax(200px, 2fr)", // Identitas
+    "minmax(120px, 1fr)", // NIS/NISN
+    "minmax(100px, 1fr)", // Kelas
+    "minmax(140px, 1fr)", // Kontak
+    "minmax(140px, 1fr)", // Tgl Lahir
+    "minmax(200px, 1.5fr)", // Alamat
+  ];
   if (authStore.role === "guru") {
-    return "60px minmax(200px, 2fr) minmax(120px, 1fr) minmax(100px, 1fr) minmax(140px, 1fr) minmax(140px, 1fr) minmax(200px, 1.5fr) minmax(140px, 1fr) minmax(100px, 1fr) minmax(120px, 1fr)";
+    cols.push("minmax(140px, 1fr)"); // Ortu
   }
-  return "60px minmax(200px, 2fr) minmax(120px, 1fr) minmax(100px, 1fr) minmax(140px, 1fr) minmax(140px, 1fr) minmax(200px, 1.5fr) minmax(100px, 1fr) minmax(120px, 1fr)";
+  cols.push("minmax(100px, 1fr)"); // Status
+  if (authStore.role === "admin") {
+    cols.push("minmax(120px, 1fr)"); // Aksi
+  }
+  return cols.join(" ");
 });
 
 // --- Anime.js Stagger Animation ---
@@ -797,7 +881,7 @@ const renderChart = () => {
 const filteredSiswa = computed(() => {
   let list = siswaList.value;
 
-  // FIX: Kalau yang login Guru, filter cuma kelasnya dia aja
+  // Kalau yang login Guru, filter cuma kelasnya dia aja
   if (authStore.role === "guru" && authStore.user?.kelas_id) {
     list = list.filter((s) => s.kelas_id === authStore.user.kelas_id);
   }
@@ -867,8 +951,7 @@ const openCreateModal = () => {
     name: "",
     email: "",
     password: "",
-    // FIX: Auto-fill kelas guru
-    kelas_id: authStore.role === "guru" ? authStore.user.kelas_id : "",
+    kelas_id: "",
     nis: "",
     nisn: "",
     no_hp: "",

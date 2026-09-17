@@ -67,9 +67,10 @@
     >
       <!-- Filter Row -->
       <div
-        class="flex flex-col md:flex-row items-stretch md:items-center gap-3 px-6 py-4 border-b border-zinc-100 bg-zinc-50/50"
+        class="flex flex-col md:flex-row items-stretch md:items-center gap-3 p-4 border-b border-zinc-100 bg-zinc-50/50"
       >
-        <div class="relative w-full md:w-64">
+        <!-- Search (Flex-1) -->
+        <div class="relative flex-1 w-full">
           <MagnifyingGlassIcon
             class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 z-10"
           />
@@ -129,16 +130,53 @@
             <div>Jatuh Tempo</div>
             <div v-if="authStore.role === 'guru'">Dibuat Oleh</div>
             <div v-if="authStore.role === 'siswa'">Status</div>
-            <div class="text-right">Aksi</div>
+            <!-- Posisi Aksi ke tengah -->
+            <div class="text-center">Aksi</div>
           </div>
 
-          <!-- States & Rows -->
-          <div
-            v-if="loading"
-            class="px-6 py-16 text-center text-zinc-400 text-sm"
-          >
-            Memuat data iuran...
+          <!-- Skeleton Loading State -->
+          <div v-if="loading" class="bg-white">
+            <div
+              v-for="i in 8"
+              :key="i"
+              class="grid items-center px-6 py-4 border-b border-zinc-50 animate-pulse"
+              :style="{ gridTemplateColumns: gridTemplate }"
+            >
+              <div class="flex justify-center">
+                <div class="w-4 h-4 bg-zinc-200 rounded"></div>
+              </div>
+              <div v-if="authStore.role === 'guru'" class="pr-4 min-w-30">
+                <div class="w-20 h-4 bg-zinc-200 rounded"></div>
+              </div>
+              <div class="pr-4 min-w-30">
+                <div class="w-28 h-4 bg-zinc-200 rounded"></div>
+              </div>
+              <div class="pr-4 min-w-30">
+                <div class="w-24 h-4 bg-zinc-200 rounded"></div>
+              </div>
+              <div class="pr-4 min-w-30">
+                <div class="w-16 h-3 bg-zinc-200 rounded"></div>
+              </div>
+              <div v-if="authStore.role === 'guru'" class="pr-4 min-w-50">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-zinc-200 shrink-0"></div>
+                  <div class="flex-1 space-y-2">
+                    <div class="w-3/4 h-3 bg-zinc-200 rounded"></div>
+                    <div class="w-1/2 h-2 bg-zinc-100 rounded"></div>
+                  </div>
+                </div>
+              </div>
+              <div v-if="authStore.role === 'siswa'" class="pr-4 min-w-30">
+                <div class="w-16 h-5 bg-zinc-200 rounded-full"></div>
+              </div>
+              <div class="flex justify-center gap-2">
+                <div class="w-8 h-8 rounded-md bg-zinc-200"></div>
+                <div class="w-8 h-8 rounded-md bg-zinc-200"></div>
+              </div>
+            </div>
           </div>
+
+          <!-- Empty State -->
           <div
             v-else-if="filteredIuran.length === 0"
             class="px-6 py-16 text-center text-zinc-400 text-sm"
@@ -179,19 +217,36 @@
                 {{ formatDate(iuran.jatuh_tempo) }}
               </div>
 
+              <!-- Dibuat Oleh + Profile -->
               <div
                 v-if="authStore.role === 'guru'"
-                class="pr-4 text-zinc-600 text-xs min-w-50"
+                class="pr-4 min-w-50"
               >
-                <span class="font-medium text-zinc-700 block">{{
-                  iuran.created_by?.name || "-"
-                }}</span>
-                <span class="text-zinc-400 block"
-                  >Dibuat: {{ formatDate(iuran.created_at) }}</span
-                >
-                <span class="text-zinc-400 block"
-                  >Diperbarui: {{ formatDate(iuran.updated_at) }}</span
-                >
+                <div class="flex items-center gap-3">
+                  <img
+                    v-if="iuran.created_by?.foto"
+                    :src="iuran.created_by.foto"
+                    class="w-8 h-8 rounded-full object-cover shrink-0 border border-zinc-100"
+                    alt="foto"
+                  />
+                  <div
+                    v-else
+                    class="w-8 h-8 rounded-full bg-zinc-100 text-zinc-500 flex items-center justify-center font-semibold text-xs shrink-0"
+                  >
+                    {{ iuran.created_by?.name?.charAt(0) || "?" }}
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="font-medium text-zinc-700 block">{{
+                      iuran.created_by?.name || "-"
+                    }}</span>
+                    <span class="text-zinc-400 text-[10px]"
+                      >Dibuat: {{ formatDate(iuran.created_at) }}</span
+                    >
+                    <span class="text-zinc-400 text-[10px]"
+                      >Diperbarui: {{ formatDate(iuran.updated_at) }}</span
+                    >
+                  </div>
+                </div>
               </div>
 
               <!-- Status Pembayaran Siswa -->
@@ -204,8 +259,8 @@
                 </span>
               </div>
 
-              <!-- Aksi -->
-              <div class="flex items-center justify-end gap-1 min-w-30">
+              <!-- Aksi (Posisi Tengah) -->
+              <div class="flex items-center justify-center gap-1 min-w-30">
                 <template v-if="authStore.role === 'guru'">
                   <button
                     @click="openEditModal(iuran)"
@@ -222,7 +277,6 @@
                 </template>
 
                 <template v-else-if="authStore.role === 'siswa'">
-                  <!-- Kalau Belum Bayar atau Ditolak, tampilin tombol bayar -->
                   <button
                     v-if="
                       getPaymentStatus(iuran.id).status === 'belum_bayar' ||
@@ -234,7 +288,6 @@
                     Bayar Sekarang
                   </button>
 
-                  <!-- Kalau Pending, tampilin tulisan ini -->
                   <span
                     v-else-if="getPaymentStatus(iuran.id).status === 'pending'"
                     class="text-xs text-zinc-400 italic"
@@ -242,7 +295,6 @@
                     Menunggu Konfirmasi
                   </span>
 
-                  <!-- Kalau Confirmed (Lunas), tampilin tulisan ini -->
                   <span v-else class="text-xs text-emerald-600 font-medium">
                     Selesai
                   </span>

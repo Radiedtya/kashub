@@ -38,7 +38,7 @@
       </div>
 
       <!-- Dropdown Notifikasi -->
-      <Menu as="div" class="relative">
+      <Menu as="div" class="relative" v-slot="{ close: closeNotif }">
         <MenuButton
           @click="notifikasiStore.fetchNotifikasi()"
           class="relative w-10 h-10 md:w-11 md:h-11 flex items-center justify-center rounded-full bg-white shadow-sm hover:shadow transition focus:outline-none"
@@ -91,11 +91,16 @@
               <MenuItem
                 v-for="notif in notifikasiStore.notifikasi.slice(0, 10)"
                 :key="notif.id"
-                v-slot="{ active }"
+                v-slot="{ active, close }"
               >
                 <button
                   type="button"
-                  @click="handleClickNotif(notif)"
+                  @click="
+                    () => {
+                      close();
+                      handleClickNotif(notif);
+                    }
+                  "
                   :class="[
                     active ? 'bg-gray-50' : '',
                     'w-full text-left flex items-start gap-3 px-4 py-3 text-sm text-gray-700 border-l-4',
@@ -109,24 +114,48 @@
                   ]"
                 >
                   <!-- Avatar Pengirim -->
-                  <div 
+                  <div
                     class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 overflow-hidden border border-gray-100"
-                    :class="!notif.sender ? getIconBg(notif.tipe) : 'bg-gray-100'"
+                    :class="
+                      !notif.sender ? getIconBg(notif.tipe) : 'bg-gray-100'
+                    "
                   >
-                    <img v-if="notif.sender?.foto" :src="notif.sender.foto" loading="lazy" class="w-full h-full object-cover" alt="foto" />
-                    <div v-else-if="notif.sender" class="w-full h-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold text-[10px]">
-                      {{ notif.sender?.name?.charAt(0) || 'S' }}
+                    <img
+                      v-if="notif.sender?.foto"
+                      :src="notif.sender.foto"
                       loading="lazy"
+                      class="w-full h-full object-cover"
+                      alt="foto"
+                    />
+                    <div
+                      v-else-if="notif.sender"
+                      class="w-full h-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold text-[10px]"
+                    >
+                      {{ notif.sender?.name?.charAt(0) || "S" }}
                     </div>
-                    <BellIcon v-else class="w-4 h-4" :class="getIconColor(notif.tipe)" />
+                    <BellIcon
+                      v-else
+                      class="w-4 h-4"
+                      :class="getIconColor(notif.tipe)"
+                    />
                   </div>
 
                   <!-- Konten Pesan -->
                   <div class="flex flex-col min-w-0">
-                    <span class="font-medium text-gray-800 truncate">{{ notif.judul }}</span>
-                    <span class="text-xs text-gray-500 mt-0.5 line-clamp-2">{{ notif.pesan }}</span>
-                    <span v-if="notif.sender" class="text-[10px] text-zinc-400 mt-1">
-                      Dari: <span class="font-medium text-zinc-500">{{ notif.sender.name }}</span>
+                    <span class="font-medium text-gray-800 truncate">{{
+                      notif.judul
+                    }}</span>
+                    <span class="text-xs text-gray-500 mt-0.5 line-clamp-2">{{
+                      notif.pesan
+                    }}</span>
+                    <span
+                      v-if="notif.sender"
+                      class="text-[10px] text-zinc-400 mt-1"
+                    >
+                      Dari:
+                      <span class="font-medium text-zinc-500">{{
+                        notif.sender.name
+                      }}</span>
                     </span>
                   </div>
                 </button>
@@ -136,6 +165,7 @@
             <div class="py-2 text-center border-t border-gray-100">
               <router-link
                 to="/notifikasi"
+                @click="closeNotif"
                 class="text-xs font-medium text-slate-500 hover:text-slate-700"
               >
                 Lihat Semua Notifikasi
@@ -180,9 +210,15 @@
             class="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none divide-y divide-gray-100 z-50"
           >
             <div class="py-1">
-              <MenuItem v-slot="{ active }">
-                <router-link
-                  to="/profile"
+              <MenuItem v-slot="{ active, close }">
+                <button
+                  type="button"
+                  @click="
+                    () => {
+                      close();
+                      router.push('/profile');
+                    }
+                  "
                   :class="[
                     active ? 'bg-gray-50 text-gray-900' : 'text-gray-700',
                     'w-full flex items-center gap-2 px-4 py-2 text-sm',
@@ -190,7 +226,7 @@
                 >
                   <UserCircleIcon class="w-5 h-5 text-gray-400" />
                   Profile
-                </router-link>
+                </button>
               </MenuItem>
             </div>
             <div class="py-1">
@@ -266,16 +302,16 @@ const handleClickNotif = async (notif) => {
 
 // Helper buat warna ikon notifikasi default (kalau gak ada sender)
 const getIconBg = (tipe) => {
-  if (tipe === 'danger') return 'bg-red-50';
-  if (tipe === 'warning') return 'bg-yellow-50';
-  if (tipe === 'success') return 'bg-emerald-50';
-  return 'bg-blue-50';
+  if (tipe === "danger") return "bg-red-50";
+  if (tipe === "warning") return "bg-yellow-50";
+  if (tipe === "success") return "bg-emerald-50";
+  return "bg-blue-50";
 };
 const getIconColor = (tipe) => {
-  if (tipe === 'danger') return 'text-red-500';
-  if (tipe === 'warning') return 'text-yellow-500';
-  if (tipe === 'success') return 'text-emerald-500';
-  return 'text-blue-500';
+  if (tipe === "danger") return "text-red-500";
+  if (tipe === "warning") return "text-yellow-500";
+  if (tipe === "success") return "text-emerald-500";
+  return "text-blue-500";
 };
 
 onMounted(() => {

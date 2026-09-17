@@ -11,32 +11,84 @@
       </router-link>
     </div>
 
-    <div v-if="loading" class="flex justify-center items-center h-96">
-      <p class="text-zinc-400">Memuat data siswa...</p>
+    <!-- Skeleton Loading -->
+    <div v-if="loading" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Skeleton Kolom Kiri -->
+      <div class="space-y-6">
+        <div class="bg-white border border-zinc-200 rounded-xl p-6 flex flex-col items-center text-center">
+          <div class="w-24 h-24 rounded-full bg-zinc-200 animate-pulse mb-4 shrink-0"></div>
+          <div class="h-5 w-32 bg-zinc-200 animate-pulse rounded mb-2"></div>
+          <div class="h-4 w-40 bg-zinc-200 animate-pulse rounded mb-4"></div>
+          <div class="w-full bg-zinc-50 rounded-lg p-4 space-y-3 border border-zinc-100">
+            <div class="flex justify-between items-center" v-for="i in 6" :key="i">
+              <div class="h-3 w-12 bg-zinc-200 animate-pulse rounded"></div>
+              <div class="h-3 w-24 bg-zinc-200 animate-pulse rounded"></div>
+            </div>
+          </div>
+          <div class="mt-4 pt-4 border-t border-zinc-100 w-full space-y-2">
+            <div class="flex justify-between items-center">
+              <div class="h-3 w-20 bg-zinc-200 animate-pulse rounded"></div>
+              <div class="h-3 w-12 bg-zinc-200 animate-pulse rounded"></div>
+            </div>
+            <div class="h-2.5 w-full bg-zinc-200 animate-pulse rounded-full"></div>
+          </div>
+        </div>
+        <div class="bg-white border border-zinc-200 rounded-xl p-6">
+          <div class="h-5 w-32 bg-zinc-200 animate-pulse rounded mb-4"></div>
+          <div class="bg-zinc-50 rounded-lg p-4 border border-zinc-100 space-y-3">
+            <div class="flex justify-between items-center" v-for="i in 2" :key="i">
+              <div class="h-3 w-12 bg-zinc-200 animate-pulse rounded"></div>
+              <div class="h-3 w-24 bg-zinc-200 animate-pulse rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton Kolom Kanan -->
+      <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white border border-zinc-200 rounded-xl p-6">
+          <div class="h-5 w-48 bg-zinc-200 animate-pulse rounded mb-4"></div>
+          <div class="space-y-3">
+            <div class="h-8 w-full bg-zinc-200 animate-pulse rounded" v-for="i in 4" :key="i"></div>
+          </div>
+        </div>
+        <div class="bg-white border border-zinc-200 rounded-xl p-6">
+          <div class="h-5 w-48 bg-zinc-200 animate-pulse rounded mb-4"></div>
+          <div class="space-y-3">
+            <div class="h-8 w-full bg-zinc-200 animate-pulse rounded" v-for="i in 3" :key="i"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div v-else-if="siswaData" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Kolom Kiri: Info Singkat (Slide from Left) -->
       <div class="space-y-6 detail-left-col">
         <div
-          class="bg-white border border-zinc-200 rounded-xl p-6 flex flex-col items-center text-center"
+          class="bg-white border border-zinc-200 border-t-4 border-t-blue-500 rounded-xl p-6 flex flex-col items-center text-center"
         >
           <div
-            class="w-24 h-24 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400 font-bold text-4xl shrink-0 border-4 border-white mb-4 overflow-hidden shadow-sm"
+            class="w-24 h-24 rounded-full p-0.75 bg-linear-to-br from-blue-400 to-indigo-600 mb-4 shrink-0 shadow-sm"
           >
-            <img
-              v-if="siswaData.user?.foto"
-              :src="siswaData.user.foto"
-              class="w-full h-full object-cover"
-              alt="foto"
-            />
-            <UserIcon v-else class="w-12 h-12" />
+            <div class="w-full h-full rounded-full bg-white p-0.5">
+              <div
+                class="w-full h-full rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400 font-bold text-4xl overflow-hidden"
+              >
+                <img
+                  v-if="siswaData.user?.foto"
+                  :src="siswaData.user.foto"
+                  class="w-full h-full object-cover"
+                  alt="foto"
+                />
+                <UserIcon v-else class="w-12 h-12" />
+              </div>
+            </div>
           </div>
           <h2 class="text-lg font-bold text-zinc-900">
             {{ siswaData.user?.name }}
           </h2>
           <p class="text-sm text-zinc-500 mb-3">{{ siswaData.user?.email }}</p>
-          
+
           <span class="mb-4 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 text-zinc-600 capitalize">
             {{ authStore.role === 'guru' ? 'Siswa' : '' }}
           </span>
@@ -96,9 +148,11 @@
             </div>
             <div class="w-full h-2.5 bg-zinc-100 rounded-full overflow-hidden">
               <div
-                class="h-full rounded-full transition-all duration-1000 ease-out"
+                class="h-full rounded-full transition-all duration-1000 ease-out bg-linear-to-r"
                 :class="
-                  paymentProgress === 100 ? 'bg-emerald-500' : 'bg-blue-600'
+                  paymentProgress === 100
+                    ? 'from-emerald-400 to-emerald-600'
+                    : 'from-blue-400 to-blue-600'
                 "
                 :style="{ width: paymentProgress + '%' }"
               ></div>
@@ -112,10 +166,12 @@
         <!-- Card Orang Tua (Hanya Guru) -->
         <div
           v-if="authStore.role === 'guru'"
-          class="bg-white border border-zinc-200 rounded-xl p-6"
+          class="bg-white border border-zinc-200 border-t-4 border-t-zinc-500 rounded-xl p-6"
         >
           <h3 class="text-sm font-semibold text-zinc-800 mb-3 flex items-center gap-2">
-            <UsersIcon class="w-4 h-4 text-zinc-500" />
+            <div class="w-7 h-7 rounded-lg bg-linear-to-br from-zinc-600 to-zinc-700 flex items-center justify-center shadow-sm shadow-zinc-500/20">
+              <UsersIcon class="w-4 h-4 text-white" />
+            </div>
             Data Orang Tua
           </h3>
           <div class="space-y-2.5 bg-zinc-50/70 rounded-lg p-4 border border-zinc-100">
@@ -138,10 +194,10 @@
       <!-- Kolom Kanan: Riwayat (Slide from Right) -->
       <div class="lg:col-span-2 space-y-6 detail-right-col">
         <!-- Riwayat Transaksi -->
-        <div class="bg-white border border-zinc-200 rounded-xl p-6">
+        <div class="bg-white border border-zinc-200 border-t-4 border-t-emerald-500 rounded-xl p-6">
           <h3 class="text-sm font-semibold text-zinc-800 mb-4 flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center border border-emerald-100">
-              <CurrencyDollarIcon class="w-5 h-5 text-emerald-600" />
+            <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-sm shadow-emerald-500/30">
+              <CurrencyDollarIcon class="w-5 h-5 text-white" />
             </div>
             Riwayat Pembayaran Iuran
           </h3>
@@ -195,10 +251,10 @@
         </div>
 
         <!-- Riwayat Keterlambatan -->
-        <div class="bg-white border border-zinc-200 rounded-xl p-6">
+        <div class="bg-white border border-zinc-200 border-t-4 border-t-red-500 rounded-xl p-6">
           <h3 class="text-sm font-semibold text-zinc-800 mb-4 flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center border border-red-100">
-              <ClockIcon class="w-5 h-5 text-red-600" />
+            <div class="w-9 h-9 rounded-lg bg-linear-to-br from-red-500 to-red-600 flex items-center justify-center shadow-sm shadow-red-500/30">
+              <ClockIcon class="w-5 h-5 text-white" />
             </div>
             Riwayat Keterlambatan & Denda
           </h3>
@@ -274,8 +330,8 @@ import TransaksiService from "@/api/transaksi";
 import KeterlambatanService from "@/api/keterlambatan";
 import IuranService from "@/api/iuran";
 import anime from "animejs";
-import { 
-  ChevronLeftIcon, UserIcon, UsersIcon, CurrencyDollarIcon, ClockIcon 
+import {
+  ChevronLeftIcon, UserIcon, UsersIcon, CurrencyDollarIcon, ClockIcon
 } from "@heroicons/vue/24/outline";
 import { useAuthStore } from "@/stores/auth";
 import dayjs from "dayjs";

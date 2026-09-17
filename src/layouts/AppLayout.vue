@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-zinc-50 font-sans overflow-hidden md:px-7 md:py-4">
+  <div class="flex h-screen bg-zinc-50 font-sans overflow-hidden md:px-12 md:py-8">
     <div
       v-if="isSidebarOpen"
       @click="isSidebarOpen = false"

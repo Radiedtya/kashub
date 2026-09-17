@@ -6,7 +6,12 @@
     >
       <div>
         <p class="text-zinc-400 mt-1 text-sm">
-          <template v-if="authStore.role === 'siswa'">
+          <template v-if="loading">
+            <span
+              class="inline-block h-4 w-40 bg-zinc-200 rounded animate-pulse align-middle"
+            ></span>
+          </template>
+          <template v-else-if="authStore.role === 'siswa'">
             Anda memiliki {{ filteredKeterlambatan.length }} data keterlambatan
           </template>
           <template v-else>
@@ -28,13 +33,33 @@
       </button>
     </div>
 
+    <!-- Chart Card Skeleton -->
+    <div
+      v-if="loading"
+      class="bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6 animate-pulse"
+    >
+      <div class="w-40 h-40 rounded-full bg-zinc-200 shrink-0"></div>
+      <div class="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div v-for="n in 2" :key="n" class="h-16 bg-zinc-100 rounded-lg"></div>
+      </div>
+    </div>
+
     <!-- Chart Card -->
-    <div class="keterlambatan-chart-card bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
+    <div
+      v-else
+      class="keterlambatan-chart-card bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6"
+    >
       <div class="relative w-40 h-40 shrink-0">
         <canvas ref="statusChart"></canvas>
-        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span class="text-xl font-bold text-zinc-900">{{ keterlambatanList.length }}</span>
-          <span class="text-zinc-400 text-[10px] uppercase tracking-wide">Total Denda</span>
+        <div
+          class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+        >
+          <span class="text-xl font-bold text-zinc-900">{{
+            keterlambatanList.length
+          }}</span>
+          <span class="text-zinc-400 text-[10px] uppercase tracking-wide"
+            >Total Denda</span
+          >
         </div>
       </div>
       <div class="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -42,14 +67,18 @@
           <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
           <div class="flex-1">
             <p class="text-xs text-zinc-500">Lunas</p>
-            <p class="text-lg font-bold text-zinc-800">{{ chartData.data[0] }}</p>
+            <p class="text-lg font-bold text-zinc-800">
+              {{ chartData.data[0] }}
+            </p>
           </div>
         </div>
         <div class="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
           <span class="w-3 h-3 rounded-full bg-red-500"></span>
           <div class="flex-1">
             <p class="text-xs text-zinc-500">Belum Bayar</p>
-            <p class="text-lg font-bold text-zinc-800">{{ chartData.data[1] }}</p>
+            <p class="text-lg font-bold text-zinc-800">
+              {{ chartData.data[1] }}
+            </p>
           </div>
         </div>
       </div>
@@ -103,12 +132,55 @@
             <div class="text-right">Status</div>
           </div>
 
-          <div
-            v-if="loading"
-            class="px-6 py-16 text-center text-zinc-400 text-sm"
-          >
-            Memuat data keterlambatan...
+          <!-- Skeleton Loading Rows -->
+          <div v-if="loading">
+            <div
+              v-for="n in 8"
+              :key="'skeleton-' + n"
+              class="grid items-center px-6 py-4 border-b border-zinc-50 last:border-0 text-sm animate-pulse"
+              :style="{ gridTemplateColumns: gridTemplate }"
+            >
+              <!-- No -->
+              <div class="flex justify-center">
+                <div class="h-4 w-4 bg-zinc-200 rounded"></div>
+              </div>
+
+              <!-- Siswa -->
+              <div class="flex items-center gap-3 pr-4 min-w-50">
+                <div class="w-8 h-8 rounded-full bg-zinc-200 shrink-0"></div>
+                <div class="space-y-2 flex-1">
+                  <div class="h-4 w-2/3 bg-zinc-200 rounded"></div>
+                  <div class="h-3 w-16 bg-zinc-100 rounded"></div>
+                </div>
+              </div>
+
+              <!-- Kelas -->
+              <div class="pr-4 min-w-30">
+                <div class="h-5 w-14 bg-zinc-200 rounded"></div>
+              </div>
+
+              <!-- Iuran -->
+              <div class="pr-4 min-w-30">
+                <div class="h-3 w-20 bg-zinc-200 rounded"></div>
+              </div>
+
+              <!-- Telat -->
+              <div class="pr-4 min-w-25">
+                <div class="h-4 w-12 bg-zinc-200 rounded"></div>
+              </div>
+
+              <!-- Denda -->
+              <div class="pr-4 min-w-30">
+                <div class="h-4 w-24 bg-zinc-200 rounded"></div>
+              </div>
+
+              <!-- Status -->
+              <div class="flex justify-end min-w-30">
+                <div class="h-6 w-20 bg-zinc-200 rounded"></div>
+              </div>
+            </div>
           </div>
+
           <div
             v-else-if="filteredKeterlambatan.length === 0"
             class="px-6 py-16 text-center text-zinc-400 text-sm"
@@ -196,10 +268,26 @@
         class="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-zinc-100 gap-4"
       >
         <p class="text-zinc-400 text-xs">
-          Showing {{ rangeStart }}–{{ rangeEnd }} of
-          {{ filteredKeterlambatan.length }}
+          <template v-if="loading">
+            <span
+              class="inline-block h-3 w-28 bg-zinc-200 rounded animate-pulse align-middle"
+            ></span>
+          </template>
+          <template v-else>
+            Showing {{ rangeStart }}–{{ rangeEnd }} of
+            {{ filteredKeterlambatan.length }}
+          </template>
         </p>
-        <div class="flex items-center gap-1">
+
+        <!-- Pagination Skeleton -->
+        <div v-if="loading" class="flex items-center gap-1">
+          <div class="w-8 h-8 bg-zinc-200 rounded-md animate-pulse"></div>
+          <div class="w-8 h-8 bg-zinc-100 rounded-md animate-pulse"></div>
+          <div class="w-8 h-8 bg-zinc-100 rounded-md animate-pulse"></div>
+          <div class="w-8 h-8 bg-zinc-200 rounded-md animate-pulse"></div>
+        </div>
+
+        <div v-else class="flex items-center gap-1">
           <button
             @click="currentPage = Math.max(1, currentPage - 1)"
             :disabled="currentPage === 1"
@@ -358,16 +446,17 @@ const getMonthName = (monthNum) => {
 
 // Computed buat Chart Data
 const chartData = computed(() => {
-  let lunas = 0, belum_bayar = 0;
-  keterlambatanList.value.forEach(k => {
+  let lunas = 0,
+    belum_bayar = 0;
+  keterlambatanList.value.forEach((k) => {
     // FIX: Cek 'sudah_bayar_denda' sesuai enum database
-    if (k.status === 'sudah_bayar_denda') lunas++;
-    else if (k.status === 'belum_bayar') belum_bayar++;
+    if (k.status === "sudah_bayar_denda") lunas++;
+    else if (k.status === "belum_bayar") belum_bayar++;
   });
   return {
-    labels: ['Lunas', 'Belum Bayar'],
+    labels: ["Lunas", "Belum Bayar"],
     data: [lunas, belum_bayar],
-    colors: ['#10b981', '#ef4444']
+    colors: ["#10b981", "#ef4444"],
   };
 });
 
@@ -375,7 +464,7 @@ const filteredKeterlambatan = computed(() => {
   let list = keterlambatanList.value;
 
   // FIX: Kalau yang login Guru, filter cuma kelasnya dia aja
-  if (authStore.role === 'guru' && authStore.user?.kelas_id) {
+  if (authStore.role === "guru" && authStore.user?.kelas_id) {
     list = list.filter((k) => k.siswa?.kelas_id === authStore.user.kelas_id);
   }
 
@@ -414,20 +503,22 @@ const renderChart = () => {
 
   if (statusChart.value) {
     chartInstance = new Chart(statusChart.value, {
-      type: 'doughnut',
+      type: "doughnut",
       data: {
         labels: chartData.value.labels,
-        datasets: [{
-          data: chartData.value.data,
-          backgroundColor: chartData.value.colors,
-          borderWidth: 0,
-          hoverOffset: 4
-        }]
+        datasets: [
+          {
+            data: chartData.value.data,
+            backgroundColor: chartData.value.colors,
+            borderWidth: 0,
+            hoverOffset: 4,
+          },
+        ],
       },
       options: {
         cutout: "70%",
-        plugins: { legend: { display: false }, tooltip: { enabled: true } }
-      }
+        plugins: { legend: { display: false }, tooltip: { enabled: true } },
+      },
     });
   }
 };

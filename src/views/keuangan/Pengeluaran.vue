@@ -6,7 +6,14 @@
     >
       <div>
         <p class="text-zinc-400 mt-1 text-sm">
-          {{ filteredPengeluaran.length }} pengajuan ditemukan
+          <template v-if="loading">
+            <span
+              class="inline-block h-4 w-32 bg-zinc-200 rounded animate-pulse align-middle"
+            ></span>
+          </template>
+          <template v-else>
+            {{ filteredPengeluaran.length }} pengajuan ditemukan
+          </template>
         </p>
       </div>
       <!-- Tombol Ajukan Pengeluaran (Hanya Bendahara) -->
@@ -20,8 +27,24 @@
       </button>
     </div>
 
+    <!-- Chart Card Skeleton -->
+    <div
+      v-if="loading"
+      class="bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6 animate-pulse"
+    >
+      <div class="w-40 h-40 rounded-full bg-zinc-200 shrink-0"></div>
+      <div class="flex-1 w-full grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div
+          v-for="n in 3"
+          :key="n"
+          class="h-16 bg-zinc-100 rounded-lg"
+        ></div>
+      </div>
+    </div>
+
     <!-- Chart Card -->
     <div
+      v-else
       class="pengeluaran-chart-card bg-white border border-zinc-200 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6"
     >
       <div class="relative w-40 h-40 shrink-0">
@@ -117,12 +140,75 @@
             <div class="text-center">Aksi</div>
           </div>
 
-          <div
-            v-if="loading"
-            class="px-6 py-16 text-center text-zinc-400 text-sm"
-          >
-            Memuat data pengeluaran...
+          <!-- Skeleton Loading Rows -->
+          <div v-if="loading">
+            <div
+              v-for="n in 6"
+              :key="'skeleton-' + n"
+              class="grid items-center px-6 py-4 border-b border-zinc-50 last:border-0 text-sm animate-pulse"
+              :style="{ gridTemplateColumns: gridTemplate }"
+            >
+              <!-- No -->
+              <div class="flex justify-center">
+                <div class="h-4 w-4 bg-zinc-200 rounded"></div>
+              </div>
+
+              <!-- Judul & Deskripsi -->
+              <div class="pr-4 min-w-50 space-y-2">
+                <div class="h-4 w-3/4 bg-zinc-200 rounded"></div>
+                <div class="h-3 w-1/2 bg-zinc-100 rounded"></div>
+              </div>
+
+              <!-- Diajukan Oleh -->
+              <div class="pr-4 min-w-45">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-zinc-200 shrink-0"></div>
+                  <div class="space-y-2 flex-1">
+                    <div class="h-3 w-2/3 bg-zinc-200 rounded"></div>
+                    <div class="h-2.5 w-12 bg-zinc-100 rounded"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tanggal -->
+              <div class="pr-4 min-w-27.5">
+                <div class="h-3 w-20 bg-zinc-200 rounded"></div>
+              </div>
+
+              <!-- Jumlah -->
+              <div class="pr-4 min-w-30">
+                <div class="h-4 w-24 bg-zinc-200 rounded"></div>
+              </div>
+
+              <!-- Bukti -->
+              <div class="pr-4 flex justify-center">
+                <div class="w-10 h-10 rounded-md bg-zinc-200"></div>
+              </div>
+
+              <!-- Status -->
+              <div class="pr-4 min-w-25">
+                <div class="h-6 w-16 bg-zinc-200 rounded-full"></div>
+              </div>
+
+              <!-- Disetujui Oleh -->
+              <div class="pr-4 min-w-37.5">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-zinc-100 shrink-0"></div>
+                  <div class="space-y-2 flex-1">
+                    <div class="h-3 w-2/3 bg-zinc-100 rounded"></div>
+                    <div class="h-2.5 w-10 bg-zinc-100 rounded"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Aksi -->
+              <div class="flex items-center justify-end gap-2 min-w-45">
+                <div class="h-6 w-20 bg-zinc-200 rounded-md"></div>
+                <div class="h-6 w-20 bg-zinc-100 rounded-md"></div>
+              </div>
+            </div>
           </div>
+
           <div
             v-else-if="filteredPengeluaran.length === 0"
             class="px-6 py-16 text-center text-zinc-400 text-sm"
@@ -289,10 +375,26 @@
         class="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-zinc-100 gap-4"
       >
         <p class="text-zinc-400 text-xs">
-          Showing {{ rangeStart }}–{{ rangeEnd }} of
-          {{ filteredPengeluaran.length }}
+          <template v-if="loading">
+            <span
+              class="inline-block h-3 w-28 bg-zinc-200 rounded animate-pulse align-middle"
+            ></span>
+          </template>
+          <template v-else>
+            Showing {{ rangeStart }}–{{ rangeEnd }} of
+            {{ filteredPengeluaran.length }}
+          </template>
         </p>
-        <div class="flex items-center gap-1">
+
+        <!-- Pagination Skeleton -->
+        <div v-if="loading" class="flex items-center gap-1">
+          <div class="w-8 h-8 bg-zinc-200 rounded-md animate-pulse"></div>
+          <div class="w-8 h-8 bg-zinc-100 rounded-md animate-pulse"></div>
+          <div class="w-8 h-8 bg-zinc-100 rounded-md animate-pulse"></div>
+          <div class="w-8 h-8 bg-zinc-200 rounded-md animate-pulse"></div>
+        </div>
+
+        <div v-else class="flex items-center gap-1">
           <button
             @click="currentPage = Math.max(1, currentPage - 1)"
             :disabled="currentPage === 1"

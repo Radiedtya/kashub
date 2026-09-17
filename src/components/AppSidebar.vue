@@ -82,7 +82,7 @@
           <span class="text-sm">Data Siswa</span>
         </router-link>
 
-        <router-link
+        <!-- <router-link
           v-if="authStore.role === 'guru' || authStore.role === 'bendahara'"
           to="/kelas"
           class="nav-link relative z-10 flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-white/70 hover:bg-white/10 hover:text-white"
@@ -90,7 +90,7 @@
         >
           <AcademicCapIcon class="w-5 h-5 shrink-0" />
           <span class="text-sm">Data Kelas</span>
-        </router-link>
+        </router-link> -->
       </nav>
 
       <!-- ==================== KEUANGAN ==================== -->
