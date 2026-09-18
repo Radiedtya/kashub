@@ -20,9 +20,9 @@
             class="mb-8"
           >
             <div class="flex items-center justify-center gap-3 mb-3">
-              <img src="@/assets/k.png" alt="Logo" class="w-12 h-12" />
+              <img src="@/assets/kb.png" alt="Logo" class="w-12 h-12" />
               <h1 class="text-3xl font-bold text-zinc-900 tracking-tight">
-                Klasify
+                KasHub
               </h1>
             </div>
             <p class="text-zinc-500 text-center text-sm">
@@ -74,7 +74,8 @@
                       ? 'border-red-400 bg-red-50/30'
                       : 'border-zinc-200'
                   "
-                  placeholder="nama@email.com"
+                  placeholder="nama@kb.com"
+                  autocomplete="off"
                 />
               </div>
               <p v-if="errors.email" class="text-red-500 text-[11px] mt-1 ml-1">
@@ -174,7 +175,7 @@
           </form>
 
           <p class="text-center text-xs text-zinc-400 mt-8">
-            © 2026 Klasify. Semua hak dilindungi.
+            © 2026 KasHub. Semua hak dilindungi.
           </p>
         </div>
       </div>
@@ -185,7 +186,7 @@
       >
         <!-- Background Image -->
         <img
-          src="@/assets/klasify-transaksi.png"
+          src="@/assets/kbt.png"
           class="absolute inset-0 h-full w-full object-cover opacity-90"
           alt="background"
         />
@@ -261,7 +262,7 @@ onMounted(() => {
   if (route.query.logout === 'true') {
     toast.success("Anda berhasil keluar. Sampai jumpa lagi!");
   } else {
-    toast.info("Halo, Selamat datang di Klasify!");
+    toast.info("Halo, Selamat datang di KasHub!");
   }
 });
 

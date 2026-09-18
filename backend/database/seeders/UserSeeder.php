@@ -32,7 +32,7 @@ class UserSeeder extends Seeder
         // ============ BUAT USER GURU ============
         $guru = User::create([
             'name' => 'Hernadhia, S.Pd.',
-            'email' => 'buherna@klasify.com',
+            'email' => 'guru@kb.com',
             'password' => Hash::make('password'),
             'role_id' => $roleGuru->id,
             'kelas_id' => 1,
@@ -48,7 +48,7 @@ class UserSeeder extends Seeder
         // ============ BUAT USER BENDAHARA ============
         $bendahara1 = User::create([
             'name' => 'Ahmad Fadilah',
-            'email' => 'bendahara1@klasify.com',
+            'email' => 'bendahara1@kb.com',
             'password' => Hash::make('password'),
             'role_id' => $roleBendahara->id,
             'kelas_id' => null,
@@ -59,7 +59,7 @@ class UserSeeder extends Seeder
 
         $bendahara2 = User::create([
             'name' => 'Zaskia Ramdhani Putri',
-            'email' => 'bendahara2@klasify.com',
+            'email' => 'bendahara2@kb.com',
             'password' => Hash::make('password'),
             'role_id' => $roleBendahara->id,
             'kelas_id' => null,
@@ -72,7 +72,7 @@ class UserSeeder extends Seeder
         $siswaData = [
             [
                 'name' => 'Ahmad Fadilah',
-                'email' => 'ahmad@klasify.com',
+                'email' => 'ahmad@kb.com',
                 'nis' => '2025001',
                 'nisn' => '1234567891',
                 'kelas' => $kelasRPL1,
@@ -85,7 +85,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Aliva Dian Nugraha',
-                'email' => 'aliva@klasify.com',
+                'email' => 'aliva@kb.com',
                 'nis' => '2025002',
                 'nisn' => '1234567892',
                 'kelas' => $kelasRPL1,
@@ -98,7 +98,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Anggia Rahmania',
-                'email' => 'anggia@klasify.com',
+                'email' => 'anggia@kb.com',
                 'nis' => '2025003',
                 'nisn' => '1234567893',
                 'kelas' => $kelasRPL1,
@@ -111,7 +111,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Ani Nur Rahayu',
-                'email' => 'ani@klasify.com',
+                'email' => 'ani@kb.com',
                 'nis' => '2025004',
                 'nisn' => '1234567894',
                 'kelas' => $kelasRPL1,
@@ -124,7 +124,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Dikri Nur Rohmat',
-                'email' => 'dikri@klasify.com',
+                'email' => 'dikri@kb.com',
                 'nis' => '2025005',
                 'nisn' => '1234567895',
                 'kelas' => $kelasRPL1,
@@ -137,7 +137,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Fakhri Ibnu Nabil',
-                'email' => 'fakhri@klasify.com',
+                'email' => 'fakhri@kb.com',
                 'nis' => '2025006',
                 'nisn' => '1234567896',
                 'kelas' => $kelasRPL1,
@@ -149,8 +149,8 @@ class UserSeeder extends Seeder
                 'no_hp_ortu' => '081243210987',
             ],
             [
-                'name' => 'Fatahilah Akbar',
-                'email' => 'fatahilah@klasify.com',
+                'name' => 'Fatahillah Akbar',
+                'email' => 'fatahillah@kb.com',
                 'nis' => '2025007',
                 'nisn' => '1234567897',
                 'kelas' => $kelasRPL1,
@@ -163,7 +163,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Feri Ramdani',
-                'email' => 'feri@klasify.com',
+                'email' => 'feri@kb.com',
                 'nis' => '2025008',
                 'nisn' => '1234567898',
                 'kelas' => $kelasRPL1,
@@ -176,7 +176,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Ilman Abidullah',
-                'email' => 'ilman@klasify.com',
+                'email' => 'ilman@kb.com',
                 'nis' => '2025009',
                 'nisn' => '1234567899',
                 'kelas' => $kelasRPL1,
@@ -189,7 +189,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Muhammad Jauf',
-                'email' => 'jauf@klasify.com',
+                'email' => 'jauf@kb.com',
                 'nis' => '2025010',
                 'nisn' => '1234567900',
                 'kelas' => $kelasRPL1,
@@ -202,7 +202,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Marsha Bara Suwarna',
-                'email' => 'marsha@klasify.com',
+                'email' => 'marsha@kb.com',
                 'nis' => '2025011',
                 'nisn' => '1234567901',
                 'kelas' => $kelasRPL1,
@@ -215,7 +215,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Muhammad Ilham',
-                'email' => 'ilham@klasify.com',
+                'email' => 'ilham@kb.com',
                 'nis' => '2025012',
                 'nisn' => '1234567902',
                 'kelas' => $kelasRPL1,
@@ -228,7 +228,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Muhammad Reza Aditia',
-                'email' => 'reza@klasify.com',
+                'email' => 'reza@kb.com',
                 'nis' => '2025013',
                 'nisn' => '1234567903',
                 'kelas' => $kelasRPL1,
@@ -241,7 +241,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Muhammad Jihad Putra Drajat',
-                'email' => 'jihad@klasify.com',
+                'email' => 'jihad@kb.com',
                 'nis' => '2025014',
                 'nisn' => '1234567904',
                 'kelas' => $kelasRPL1,
@@ -254,7 +254,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Muhammad Radiedtya Pratama',
-                'email' => 'radit@klasify.com',
+                'email' => 'radit@kb.com',
                 'nis' => '24251753112',
                 'nisn' => '1234567905',
                 'kelas' => $kelasRPL1,
@@ -267,7 +267,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Rakha Alfarizqi Zahir',
-                'email' => 'rakha@klasify.com',
+                'email' => 'rakha@kb.com',
                 'nis' => '2025016',
                 'nisn' => '1234567906',
                 'kelas' => $kelasRPL1,
@@ -280,7 +280,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Rakha Rava Andrea',
-                'email' => 'rava@klasify.com',
+                'email' => 'rava@kb.com',
                 'nis' => '2025017',
                 'nisn' => '1234567907',
                 'kelas' => $kelasRPL1,
@@ -293,7 +293,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Rehan Ramadhan',
-                'email' => 'rehan@klasify.com',
+                'email' => 'rehan@kb.com',
                 'nis' => '2025018',
                 'nisn' => '1234567908',
                 'kelas' => $kelasRPL1,
@@ -306,7 +306,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Reihan Azka Vahlepy',
-                'email' => 'reihan@klasify.com',
+                'email' => 'reihan@kb.com',
                 'nis' => '2025019',
                 'nisn' => '1234567909',
                 'kelas' => $kelasRPL1,
@@ -319,7 +319,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Riska Aulia Sakinah',
-                'email' => 'riska@klasify.com',
+                'email' => 'riska@kb.com',
                 'nis' => '2025020',
                 'nisn' => '12345679010',
                 'kelas' => $kelasRPL1,
@@ -332,7 +332,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Rudy Gunawan',
-                'email' => 'rudy@klasify.com',
+                'email' => 'rudy@kb.com',
                 'nis' => '2025021',
                 'nisn' => '12345679011',
                 'kelas' => $kelasRPL1,
@@ -345,7 +345,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Salwa Khaerunnisa',
-                'email' => 'salwa@klasify.com',
+                'email' => 'salwa@kb.com',
                 'nis' => '2025022',
                 'nisn' => '12345679012',
                 'kelas' => $kelasRPL1,
@@ -358,7 +358,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Siti Nurfadilla Hasanah',
-                'email' => 'siti@klasify.com',
+                'email' => 'siti@kb.com',
                 'nis' => '2025023',
                 'nisn' => '12345679013',
                 'kelas' => $kelasRPL1,
@@ -371,7 +371,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Teguh Firmansyah',
-                'email' => 'teguh@klasify.com',
+                'email' => 'teguh@kb.com',
                 'nis' => '2025024',
                 'nisn' => '12345679014',
                 'kelas' => $kelasRPL1,
@@ -384,7 +384,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Zaskia Ramadhani Putri',
-                'email' => 'zaskia@klasify.com',
+                'email' => 'zaskia@kb.com',
                 'nis' => '2025025',
                 'nisn' => '12345679015',
                 'kelas' => $kelasRPL1,

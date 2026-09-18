@@ -23,10 +23,10 @@
       <div
         class="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm shrink-0"
       >
-        <img src="@/assets/k.png" class="w-full h-full object-contain p-1" />
+        <img src="@/assets/kb.png" class="w-full h-full object-contain p-1" />
       </div>
       <div class="flex items-center gap-2">
-        <span class="text-xl font-bold tracking-tight">Klasify</span>
+        <span class="text-xl font-bold tracking-tight">KasHub</span>
       </div>
     </div>
 
